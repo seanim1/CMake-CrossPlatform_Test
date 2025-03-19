@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/finalsean/Documents/repo/CMake-CrossPlatform_Test/build",
+  "command": "/usr/bin/c++ -I/home/finalsean/Documents/repo/CMake-CrossPlatform_Test/include -g -std=gnu++14 -o CMakeFiles/EXECUTABLE_TARGET_NAME.dir/src/main.cpp.o -c /home/finalsean/Documents/repo/CMake-CrossPlatform_Test/src/main.cpp",
+  "file": "/home/finalsean/Documents/repo/CMake-CrossPlatform_Test/src/main.cpp",
+  "output": "CMakeFiles/EXECUTABLE_TARGET_NAME.dir/src/main.cpp.o"
+}
+]

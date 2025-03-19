@@ -1,0 +1,41 @@
+[Buildset]
+BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x000\x00C\x00M\x00a\x00k\x00e\x00-\x00C\x00r\x00o\x00s\x00s\x00P\x00l\x00a\x00t\x00f\x00o\x00r\x00m\x00_\x00T\x00e\x00s\x00t)
+
+[CMake]
+Build Directory Count=1
+Current Build Directory Index-Host System=0
+
+[CMake][CMake Build Directory 0]
+Build Directory Path=/home/finalsean/Documents/repo/CMake-CrossPlatform_Test/build
+Build Type=Debug
+CMake Binary=/usr/bin/cmake
+CMake Executable=/usr/bin/cmake
+Environment Profile=
+Extra Arguments=
+Install Directory=
+Runtime=Host System
+
+[Launch]
+Launch Configurations=Launch Configuration 0
+
+[Launch][Launch Configuration 0]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=EXECUTABLE_TARGET_NAME
+Type=Native Application
+
+[Launch][Launch Configuration 0][Data]
+Arguments=
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x02\x00\x00\x000\x00C\x00M\x00a\x00k\x00e\x00-\x00C\x00r\x00o\x00s\x00s\x00P\x00l\x00a\x00t\x00f\x00o\x00r\x00m\x00_\x00T\x00e\x00s\x00t\x00\x00\x00,\x00E\x00X\x00E\x00C\x00U\x00T\x00A\x00B\x00L\x00E\x00_\x00T\x00A\x00R\x00G\x00E\x00T\x00_\x00N\x00A\x00M\x00E)
+Dependency Action=Build
+EnvironmentGroup=
+Executable=file:///home/finalsean/Documents/repo/CMake-CrossPlatform_Test
+External Terminal=konsole --noclose --workdir %workdir -e %exe
+Kill Before Executing Again=4194304
+Project Target=CMake-CrossPlatform_Test,EXECUTABLE_TARGET_NAME
+Use External Terminal=false
+Working Directory=
+isExecutable=false
+
+[Project]
+VersionControlSupport=kdevgit
