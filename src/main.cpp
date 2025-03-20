@@ -1,7 +1,6 @@
 #include "Global.h"
+#include "Windows_Specific.h"
 
-#include <iostream>
-#include <cstring>
 
 #ifdef _WIN32
 #include <intrin.h>  // For MSVC __cpuid
@@ -54,13 +53,12 @@ void queryProcessorName() {
 }
 
 int main() {
-#ifdef _WIN32
-    std::cout << "Hello, Win32!" << std::endl;
-#elif __linux__
+#ifdef __linux__
     std::cout << "Hello, Linux!" << std::endl;
 #elif __APPLE__
-    std::cout << "Hello, Apple!" << std::endl;
+    std::cout << "Hello, Apple MacOS!" << std::endl;
 #endif
+    queryProcessor();
     queryProcessorName();
     return 0;
 }

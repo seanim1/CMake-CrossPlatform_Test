@@ -1,4 +1,0 @@
-Target dependency graph (2 targets)
-Target 'EXECUTABLE_TARGET_NAME' in project 'PROJECT_NAME'
-➜ Explicit dependency on target 'ZERO_CHECK' in project 'PROJECT_NAME'
-Target 'ZERO_CHECK' in project 'PROJECT_NAME' (no dependencies)

@@ -1,7 +1,7 @@
 {
 	"InstallScripts" : 
 	[
-		"/Users/sean/Documents/GitHub/CMake-CrossPlatform_Test/bin/cmake_install.cmake"
+		"C:/Users/Sean/source/repo/CMake-CrossPlatform_Test/bin/cmake_install.cmake"
 	],
 	"Parallel" : false
 }
