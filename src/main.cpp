@@ -13,7 +13,7 @@
 #endif
 void queryProcessorName() {
     char cpuName[49] = { 0 };  // 48 characters + null terminator
-#ifdef _WIN32 || __linux__
+#if defined(_WIN32) || defined(__linux__)
     int cpuInfo[4] = { 0 };  // Initialize to 0
     // Get vendor string
 #ifdef _WIN32
