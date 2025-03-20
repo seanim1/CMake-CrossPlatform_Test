@@ -1,0 +1,58 @@
+# Ignore everything by default
+*
+ 
+# Allow the CMakeLists.txt file and src/include directories
+!CMakeLists.txt
+!src/
+!include/
+
+# Allow contents inside src and include
+!src/**
+!include/**
+
+# allow .gitignore
+!.gitignore
+
+# Ignore CMake-generated files
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/build/
+/Makefile
+/install_manifest.txt
+
+# Ignore compiled binaries
+/bin/
+/lib/
+/obj/
+/*.o
+/*.obj
+/*.exe
+/*.dll
+/*.so
+/*.dylib
+
+# Ignore Visual Studio project files
+*.sln
+*.vcxproj*
+*.user
+*.filters
+
+# Ignore Xcode project files
+*.xcodeproj
+*.xcworkspace
+*.xcuser*
+*.pbxproj
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+
+# LINUX: Ignore IDE-specific files
+/build/
+/.kdev4/
+*.kdev*
+
