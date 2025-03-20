@@ -1,5 +1,7 @@
 #pragma once
 #include <iostream>
+#include <string.h>
+#include <stdint.h>
 typedef struct CPU_CAPABILITIES {
 	uint8_t is_SMT_enabled;
 	uint8_t logicalThreadCount;
