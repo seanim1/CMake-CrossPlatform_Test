@@ -9,7 +9,7 @@ static void print_binary_64bits(uint64_t mask, uint8_t bitCount) {
         printf("%d", (mask >> i) & 1);
     }
 }
-static void queryLogicalProcessors() {
+static void queryProcessorSpecs() {
     // Get the logical processor information
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
@@ -118,7 +118,7 @@ static void queryLogicalProcessors() {
     cpuCap.physicalCoreCount = physicalCoreCount;
 }
 
-void queryProcessorName() {
+static void queryProcessorName() {
     int cpuInfo[4] = { 0 };  // Initialize to 0
     // Get vendor string
     __cpuid(cpuInfo, 0x0);  // CPUID function 0: Get vendor string
@@ -140,5 +140,9 @@ void queryProcessorName() {
     printf("CPU Name: %s\n", cpuName);
 }
 
+void queryProcessor() {
+    queryProcessorName();
+    queryProcessorSpecs();
+}
 
 #endif

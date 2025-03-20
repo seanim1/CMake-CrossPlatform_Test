@@ -3,10 +3,10 @@
 
 #include "Global.h"
 #include <windows.h>
-void queryProcessorName();
-inline void queryProcessor() {
+void queryProcessor();
+inline void queryProcessor_crossPlatform() {
     std::cout << "Hello, Windows OS!" << std::endl;
-    queryProcessorName();
+    queryProcessor();
 }
 #define CATCH_ERROR(result)                                    \
 if (result < 0) {                                                               \

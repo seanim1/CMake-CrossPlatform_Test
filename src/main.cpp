@@ -9,6 +9,6 @@
 #endif
 
 int main() {
-    queryProcessor();
+    queryProcessor_crossPlatform();
     return 0;
 }

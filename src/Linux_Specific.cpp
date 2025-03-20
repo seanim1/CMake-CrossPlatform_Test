@@ -24,4 +24,7 @@ void queryProcessorName() {
     printf("CPU Name: %s\n", cpuName);
 }
 
+void queryProcessor() {
+    queryProcessorName();
+}
 #endif
