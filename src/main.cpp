@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>  // For sysctlbyname on macOS
 #endif
-void queryProcessorName() {
+void queryProcessorNameu() {
     char cpuName[49] = { 0 };  // 48 characters + null terminator
     int cpuInfo[4] = { 0 };  // Initialize to 0
     // Get vendor string
@@ -30,7 +30,6 @@ void queryProcessorName() {
         memcpy(cpuName + i * 16, cpuInfo, 16);  // Copy 16 bytes per call
     }
     cpuName[48] = '\0'; // Ensure null termination
-    printf("CPU Name: %s\n", cpuName);
 #if defined(__APPLE__)
     // Get CPU name using sysctl on Apple Silicon (ARM-based Macs)
     size_t len = sizeof(cpuName);
@@ -45,12 +44,10 @@ void queryProcessorName() {
 }
 
 int main() {
-#ifdef __linux__
-    std::cout << "Hello, Linux!" << std::endl;
-#elif __APPLE__
+#ifdef __APPLE__
     std::cout << "Hello, Apple MacOS!" << std::endl;
 #endif
     queryProcessor();
-    queryProcessorName();
+    queryProcessorNameu();
     return 0;
 }

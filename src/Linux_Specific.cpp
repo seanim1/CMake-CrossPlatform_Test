@@ -24,9 +24,4 @@ void queryProcessorName() {
     printf("CPU Name: %s\n", cpuName);
 }
 
-void queryProcessor() {
-    std::cout << "Hello, Linux!" << std::endl;
-    queryProcessorName();
-}
-
 #endif

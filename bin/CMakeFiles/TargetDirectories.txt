@@ -1,3 +1,0 @@
-C:/Users/Sean/source/repo/CMake-CrossPlatform_Test/bin/CMakeFiles/EXECUTABLE_TARGET_NAME.dir
-C:/Users/Sean/source/repo/CMake-CrossPlatform_Test/bin/CMakeFiles/ALL_BUILD.dir
-C:/Users/Sean/source/repo/CMake-CrossPlatform_Test/bin/CMakeFiles/ZERO_CHECK.dir

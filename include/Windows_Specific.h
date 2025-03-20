@@ -3,7 +3,11 @@
 
 #include "Global.h"
 #include <windows.h>
-void queryProcessor();
+static void queryProcessorName();
+inline void queryProcessor() {
+    std::cout << "Hello, Windows OS!" << std::endl;
+    queryProcessorName();
+}
 #define CATCH_ERROR(result)                                    \
 if (result < 0) {                                                               \
     MessageBoxA(NULL, FILE_AND_LINE, "Error!", MB_ICONEXCLAMATION | MB_OK);   \

@@ -9,5 +9,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Add include directory so headers can be found
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
+# Collect all .cpp files in the src directory as a SOURCES variable
+file(GLOB SOURCES "src/*.cpp")
+
 # EXECUTABLE_TARGET_NAME name of the compiled executable
-add_executable(EXECUTABLE_TARGET_NAME src/main.cpp)
+add_executable(EXECUTABLE_TARGET_NAME ${SOURCES})
+

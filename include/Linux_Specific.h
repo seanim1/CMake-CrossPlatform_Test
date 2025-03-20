@@ -3,6 +3,9 @@
 
 #include "Global.h"
 #include <cpuid.h>  // For Linux: __get_cpuid
-
-void queryProcessor();
+void queryProcessorName();
+inline void queryProcessor() {
+    std::cout << "Hello, Linux!" << std::endl;
+    queryProcessorName();
+}
 #endif
