@@ -6,10 +6,15 @@
 #ifdef _WIN32
 #include <intrin.h>  // For MSVC __cpuid
 #elif __linux__
-#include <cpuid.h>  // For Linux and macOS
+#include <cpuid.h>  // For Linux
+#elif __APPLE__
+#include <sys/types.h>
+#include <sys/sysctl.h>  // For sysctlbyname on macOS
 #endif
 void queryProcessorName() {
-    int cpuInfo[4] = {0};  // Initialize to 0
+    char cpuName[49] = { 0 };  // 48 characters + null terminator
+#ifdef _WIN32 || __linux__
+    int cpuInfo[4] = { 0 };  // Initialize to 0
     // Get vendor string
 #ifdef _WIN32
     __cpuid(cpuInfo, 0x0);  // CPUID function 0: Get vendor string
@@ -24,7 +29,6 @@ void queryProcessorName() {
     std::cout << "CPU Vendor: " << vendor << "\n";
 
     // Get CPU name (function 0x80000002 to 0x80000004)
-    char cpuName[49] = {0};  // 48 characters + null terminator
     for (int i = 0; i < 3; i++) {
 #ifdef _WIN32
         __cpuid(cpuInfo, 0x80000002 + i);
@@ -35,13 +39,10 @@ void queryProcessorName() {
     }
     cpuName[48] = '\0'; // Ensure null termination
     printf("CPU Name: %s\n", cpuName);
-
+#endif
 #if defined(__APPLE__)
-#include <sys/types.h>
-#include <sys/sysctl.h>  // For sysctlbyname on macOS
     // Get CPU name using sysctl on Apple Silicon (ARM-based Macs)
     size_t len = sizeof(cpuName);
-
     // sysctlbyname is used to query system information on macOS
     if (sysctlbyname("machdep.cpu.brand_string", cpuName, &len, NULL, 0) != 0) {
         std::cerr << "Error: Unable to retrieve CPU brand string from sysctl.\n";
@@ -53,7 +54,13 @@ void queryProcessorName() {
 }
 
 int main() {
-    std::cout << "Hello, CMake with Linux Ubuntu!" << std::endl;
+#ifdef _WIN32
+    std::cout << "Hello, Win32!" << std::endl;
+#elif __linux__
+    std::cout << "Hello, Linux!" << std::endl;
+#elif __APPLE__
+    std::cout << "Hello, Apple!" << std::endl;
+#endif
     queryProcessorName();
     return 0;
 }
