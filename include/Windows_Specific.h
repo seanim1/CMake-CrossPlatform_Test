@@ -3,7 +3,7 @@
 
 #include "Global.h"
 #include <windows.h>
-static void queryProcessorName();
+void queryProcessorName();
 inline void queryProcessor() {
     std::cout << "Hello, Windows OS!" << std::endl;
     queryProcessorName();

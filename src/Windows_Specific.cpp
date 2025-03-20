@@ -118,7 +118,7 @@ static void queryLogicalProcessors() {
     cpuCap.physicalCoreCount = physicalCoreCount;
 }
 
-static void queryProcessorName() {
+void queryProcessorName() {
     int cpuInfo[4] = { 0 };  // Initialize to 0
     // Get vendor string
     __cpuid(cpuInfo, 0x0);  // CPUID function 0: Get vendor string
