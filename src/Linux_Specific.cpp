@@ -1,3 +1,5 @@
+#ifdef __linux__
+
 #include "Linux_Specific.h"
 
 void queryProcessorName() {
@@ -26,3 +28,5 @@ void queryProcessor() {
     std::cout << "Hello, Linux!" << std::endl;
     queryProcessorName();
 }
+
+#endif

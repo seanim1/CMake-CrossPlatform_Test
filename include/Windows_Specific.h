@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #pragma once
 
 #include "Global.h"
@@ -16,3 +17,5 @@ if (ptr == NULL) {                                          \
     MessageBoxA(NULL, FILE_AND_LINE, "Malloc Failed!", MB_ICONEXCLAMATION | MB_OK); \
     exit(EXIT_FAILURE);                                      \
 }
+
+#endif

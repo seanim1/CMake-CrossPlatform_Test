@@ -10,12 +10,9 @@
 #endif
 void queryProcessorName() {
     char cpuName[49] = { 0 };  // 48 characters + null terminator
-#if defined(_WIN32) || defined(__linux__)
     int cpuInfo[4] = { 0 };  // Initialize to 0
     // Get vendor string
-#ifdef _WIN32
-    __cpuid(cpuInfo, 0x0);  // CPUID function 0: Get vendor string
-#elif __linux__
+#ifdef __linux__
     __get_cpuid(0x0, (unsigned int*)&cpuInfo[0], (unsigned int*)&cpuInfo[1], (unsigned int*)&cpuInfo[2], (unsigned int*)&cpuInfo[3]);
 #endif
     char vendor[13];  // Vendor string is 12 characters + null terminator
@@ -27,16 +24,13 @@ void queryProcessorName() {
 
     // Get CPU name (function 0x80000002 to 0x80000004)
     for (int i = 0; i < 3; i++) {
-#ifdef _WIN32
-        __cpuid(cpuInfo, 0x80000002 + i);
-#elif __linux__
+#ifdef __linux__
         __get_cpuid(0x80000002 + i, (unsigned int*)&cpuInfo[0], (unsigned int*)&cpuInfo[1], (unsigned int*)&cpuInfo[2], (unsigned int*)&cpuInfo[3]);
 #endif
         memcpy(cpuName + i * 16, cpuInfo, 16);  // Copy 16 bytes per call
     }
     cpuName[48] = '\0'; // Ensure null termination
     printf("CPU Name: %s\n", cpuName);
-#endif
 #if defined(__APPLE__)
     // Get CPU name using sysctl on Apple Silicon (ARM-based Macs)
     size_t len = sizeof(cpuName);

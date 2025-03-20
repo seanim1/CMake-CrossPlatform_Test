@@ -1,3 +1,5 @@
+#ifdef _WIN32
+
 #include "Windows_Specific.h"
 
 #include <intrin.h>  // For MSVC __cpuid
@@ -142,3 +144,5 @@ void queryProcessor() {
     std::cout << "Hello, Windows OS!" << std::endl;
     queryProcessorName();
 }
+
+#endif
