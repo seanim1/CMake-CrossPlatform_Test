@@ -73,11 +73,9 @@ long getCacheSize(int level) {
 
     // Convert size to bytes
     long size = std::stol(sizeStr);
-    if (sizeStr.back() == 'K') size *= 1024;  // Convert KB to Bytes
 
     return size;
 }
-
 
 void queryProcessor() {
     queryProcessorName();
@@ -88,12 +86,13 @@ void queryProcessor() {
     long L1i = getCacheSize(2);  // L1 Instruction
     long L2  = getCacheSize(3);
     long L3  = getCacheSize(4);
-
+    long cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);  // Get Cache Line Size
     printf("Logical Thread Count: %d\n", logical_threads);
     printf("Physical Core Count:  %d\n", physical_cores);
-    std::cout << "L1 Data Cache: " << L1d << " Bytes\n";
-    std::cout << "L1 Instruction Cache: " << L1i << " Bytes\n";
-    std::cout << "L2 Cache: " << L2 << " Bytes\n";
-    std::cout << "L3 Cache: " << L3 << " Bytes\n";
+    std::cout << "L1 Cache line size: " << cacheLineSize << " Bytes" << std::endl;
+    std::cout << "L1 Data Cache: " << L1d << " KB\n";
+    std::cout << "L1 Instruction Cache: " << L1i << " KB\n";
+    std::cout << "L2 Cache: " << L2 << " KB\n";
+    std::cout << "L3 Cache: " << L3 << " KB\n";
 }
 #endif
