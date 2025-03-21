@@ -24,7 +24,76 @@ void queryProcessorName() {
     printf("CPU Name: %s\n", cpuName);
 }
 
+int count_physical_cores() {
+    DIR* dir;
+    struct dirent* entry;
+    char path[128];
+    int core_ids[256] = {0}; // Assume max 256 cores
+    int core_count = 0;
+
+    // Scan CPU topology
+    dir = opendir("/sys/devices/system/cpu");
+    if (!dir) return -1;
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (strncmp(entry->d_name, "cpu", 3) == 0 && isdigit(entry->d_name[3])) {
+            snprintf(path, sizeof(path), "/sys/devices/system/cpu/%s/topology/core_id", entry->d_name);
+
+            FILE* file = fopen(path, "r");
+            if (!file) continue;
+
+            int core_id;
+            fscanf(file, "%d", &core_id);
+            fclose(file);
+
+            // Track unique core IDs
+            int found = 0;
+            for (int i = 0; i < core_count; i++) {
+                if (core_ids[i] == core_id) {
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found) core_ids[core_count++] = core_id;
+        }
+    }
+    closedir(dir);
+    return core_count;
+}
+
+long getCacheSize(int level) {
+    std::string path = "/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(level - 1) + "/size";
+    std::ifstream file(path);
+
+    if (!file.is_open()) return -1; // Return -1 if file read fails
+
+    std::string sizeStr;
+    file >> sizeStr;
+    file.close();
+
+    // Convert size to bytes
+    long size = std::stol(sizeStr);
+    if (sizeStr.back() == 'K') size *= 1024;  // Convert KB to Bytes
+
+    return size;
+}
+
+
 void queryProcessor() {
     queryProcessorName();
+
+    int logical_threads = sysconf(_SC_NPROCESSORS_ONLN);
+    int physical_cores = count_physical_cores();
+    long L1d = getCacheSize(1);  // L1 Data
+    long L1i = getCacheSize(2);  // L1 Instruction
+    long L2  = getCacheSize(3);
+    long L3  = getCacheSize(4);
+
+    printf("Logical Thread Count: %d\n", logical_threads);
+    printf("Physical Core Count:  %d\n", physical_cores);
+    std::cout << "L1 Data Cache: " << L1d << " Bytes\n";
+    std::cout << "L1 Instruction Cache: " << L1i << " Bytes\n";
+    std::cout << "L2 Cache: " << L2 << " Bytes\n";
+    std::cout << "L3 Cache: " << L3 << " Bytes\n";
 }
 #endif
