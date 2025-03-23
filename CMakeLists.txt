@@ -39,26 +39,26 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 file(GLOB SOURCES "src/*.cpp")
 
 # EXECUTABLE_TARGET_NAME name of the compiled executable
-add_executable(PROJECT_NAME ${SOURCES})
+add_executable(EXECUTABLE_TARGET_NAME ${SOURCES})
 
 # Only add post-build commands after the target is created
 if(WIN32)
     # Link GLFW with your project
-    target_link_libraries(PROJECT_NAME glfw)
+    target_link_libraries(EXECUTABLE_TARGET_NAME glfw)
 
-    add_custom_command(TARGET PROJECT_NAME POST_BUILD
+    add_custom_command(TARGET EXECUTABLE_TARGET_NAME POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${GLFW_DLL_PATH}"
-        $<TARGET_FILE_DIR:PROJECT_NAME>/glfw3.dll)
+        $<TARGET_FILE_DIR:EXECUTABLE_TARGET_NAME>/glfw3.dll)
 else()
     # Include GLFW headers
     include_directories(${GLFW_INCLUDE_DIR})
 
     # Link GLFW with your project
-    target_link_libraries(PROJECT_NAME ${GLFW_LIBRARY})
+    target_link_libraries(EXECUTABLE_TARGET_NAME ${GLFW_LIBRARY})
 
-    add_custom_command(TARGET PROJECT_NAME POST_BUILD
+    add_custom_command(TARGET EXECUTABLE_TARGET_NAME POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${GLFW_LIBRARY}"
-        $<TARGET_FILE_DIR:PROJECT_NAME>/libglfw.so)
+        $<TARGET_FILE_DIR:EXECUTABLE_TARGET_NAME>/libglfw.so)
 endif()
