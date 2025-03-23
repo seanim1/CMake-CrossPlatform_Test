@@ -1,5 +1,5 @@
-# CMake GLFW skeleton for Windows, Linux, MacOS
-
+# CMake GUI skeleton for Windows, Linux, MacOS
+Display processor specs then begin a GUI.
 ## Installing GLFW for CMake
 
 using vcpkg to download glfw (make sure you have installed Git though)
