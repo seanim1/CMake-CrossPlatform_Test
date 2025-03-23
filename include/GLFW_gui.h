@@ -1,4 +1,5 @@
 #pragma once
+#include "Global.h"
 #include <GLFW/glfw3.h>
 
 // Declare the array to track key states
@@ -8,4 +9,6 @@ extern bool keys[GLFW_KEY_LAST + 1];
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 // Function to initialize GLFW and set the key callback
-void initGLFW(GLFWwindow*& window);
+void init_GUI();
+void destroy_GUI();
+int loop_GUI();

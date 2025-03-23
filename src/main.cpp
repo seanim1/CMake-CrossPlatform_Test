@@ -1,5 +1,5 @@
 #include "Global.h"
-#include <GLFW/glfw3.h>
+#include "GLFW_gui.h"
 
 #ifdef _WIN32
 #include "Windows_Specific.h"
@@ -12,5 +12,10 @@
 int main() {
     queryProcessor_crossPlatform();
 
+    init_GUI();
+    while (!loop_GUI()) {
+
+    }
+    destroy_GUI();
     return 0;
 }
