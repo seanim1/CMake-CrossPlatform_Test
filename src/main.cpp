@@ -10,5 +10,6 @@
 
 int main() {
     queryProcessor_crossPlatform();
+
     return 0;
 }

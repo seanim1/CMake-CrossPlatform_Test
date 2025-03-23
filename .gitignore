@@ -3,6 +3,7 @@
  
 # Allow the CMakeLists.txt file and src/include directories
 !CMakeLists.txt
+!FindGLFW.cmake
 !src/
 !include/
 
@@ -10,7 +11,7 @@
 !src/**
 !include/**
 
-# allow .gitignore
+# don't ignore the .gitignore!
 !.gitignore
 
 # Ignore CMake-generated files
@@ -28,6 +29,8 @@
 /*.o
 /*.obj
 /*.exe
+
+# Ignore Compiled Dynamic libraries
 /*.dll
 /*.so
 /*.dylib
