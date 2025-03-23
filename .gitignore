@@ -13,6 +13,7 @@
 
 # don't ignore the .gitignore!
 !.gitignore
+!README.md
 
 # Ignore CMake-generated files
 /CMakeFiles/
