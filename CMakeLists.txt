@@ -9,9 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Find GLFW
 if(WIN32)
     # Specify the path to the GLFW installation directory in vcpkg
+    set(CMAKE_PREFIX_PATH "C:/vcpkg/installed/x64-windows/share/glfw3" CACHE STRING "Path to glfw3Targets.cmake, glfw3Config.cmake, etc")
 
-    # Find GLFW using FindGLFW.cmake
-    # This probably looks for the include file: 'GLFW/glfw3.h'
+    # If CMAKE_PREFIX_PATH is set:
+    #   CMake will attempt to find GLFW3Config.cmake or glfw3-config.cmake in the subdirectories of CMAKE_PREFIX_PATH
     # looks like "GLFW3" only works on WIN32, and "GLFW" only works on Linux...
     find_package(GLFW3 REQUIRED)
 
@@ -38,7 +39,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 file(GLOB SOURCES "src/*.cpp")
 
 # EXECUTABLE_TARGET_NAME name of the compiled executable
-add_executable(EXECUTABLE_TARGET_NAME ${SOURCES})
+add_executable(PROJECT_NAME ${SOURCES})
 
 # Only add post-build commands after the target is created
 if(WIN32)
