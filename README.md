@@ -2,32 +2,39 @@
 Display processor specs then begin a GUI.
 ## Installing GLFW for CMake
 
-using vcpkg to download glfw (make sure you have installed Git though)
-
 ### Windows: Installing GLFW
 
-First, you need to install `vcpkg`, a C++ package manager.
-
-1. Open **Command Prompt** or **PowerShell**.
-2. Clone the `vcpkg` repository in your C drive root:
-
-   ```bash
-   cd \
-   git clone https://github.com/microsoft/vcpkg.git
-3. Navigate to the `vcpkg` directory and execute the bootstrap script:
-
-   ```bash
-   cd vcpkg
-   .\bootstrap-vcpkg.bat
-4. Clone the `vcpkg` repository in your C drive root:
-
+- [Install vcpkg, a C++ package manager](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell)
+- Open terminal (Command Prompt or Powershell).
+- Install glfw3 64-bit.
    ```bash
    vcpkg install glfw3:x64-windows
-5. Now you should be able to locate .cmake files (like GLFW3Config.cmake) at "C:\vcpkg\installed\x64-windows\share\glfw3" and "glfw3.dll" at "C:\vcpkg\installed\x64-windows\bin"
-### Linux (Ubuntu): Installing GLFW
-1. Open terminal **Bash**.
+- Now you should be able to locate
+   - .cmake (glfw3/GLFW3Config.cmake) at: "C:\vcpkg\installed\x64-windows\share\glfw3"
+   - Header (GLFW/glfw3.h) at: "C:\vcpkg\installed\x64-windows\include"
+   - Dynamic Library at: "C:\vcpkg\installed\x64-windows\bin\glfw3.dll"
+### Linux (Ubuntu)
+- Open terminal (Bash).
+- Install glfw.
    ```bash
    sudo apt-get install libglfw3 libglfw3-dev
-2. Now you should be able to locate .cmake files (like GLFW3Config.cmake) at "/usr/lib/x86_64-linux-gnu/cmake/glfw3" and "libglfw.so" at "/usr/lib/x86_64-linux-gnu/libglfw.so"
-## Run CMake:
+- Now you should be able to locate
+   - .cmake (glfw3/GLFW3Config.cmake) at: "/usr/lib/x86_64-linux-gnu/cmake/glfw3"
+   - Header (GLFW/glfw3.h) at: "/usr/include"
+   - Dynamic Library at: "/usr/lib/x86_64-linux-gnu/libglfw.so"
 
+### MacOS
+- Install Homebrew.
+- Open terminal (Bash).
+- Install glfw.
+   ```bash
+   brew install glfw
+- Now you should be able to locate
+   - Header (GLFW/glfw3.h) at: "/opt/homebrew/include"
+   - Dynamic Library at: "/opt/homebrew/lib/libglfw.dylib"
+
+## Run CMake:
+### Windows
+- If the CMake build fails to find glfw3.dll, then you might have to manually type in the path to the glfw3.dll in CMakeLists.txt.
+### Linux & MacOS
+- CMake should be able to find the header and library automatically.
