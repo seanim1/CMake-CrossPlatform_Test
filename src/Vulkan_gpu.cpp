@@ -31,14 +31,15 @@ static void createInstance() {
 	for (int i = 0; i < extCount; i++) {
 		printf("\t%d: %s\n", i, supportedInstanceExtensions[i].extensionName);
 	}
-#define EXTENSION_COUNT_INSTANCE 4
+#define EXTENSION_COUNT_INSTANCE 5
 	const char* enabledInstanceExtensions[EXTENSION_COUNT_INSTANCE] = {
-		VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
-		VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME };
+		VK_KHR_SURFACE_EXTENSION_NAME, "platformDependentSurface",
+		VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME,
+        VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME};
 #if defined(_WIN32)
 	enabledInstanceExtensions[1] = VK_KHR_WIN32_SURFACE_EXTENSION_NAME; // vkCreateWin32SurfaceKHR() will fail without it
-#elif defined(VK_USE_PLATFORM_MACOS_MVK)
-	enabledInstanceExtensions[1] = VK_MVK_MACOS_SURFACE_EXTENSION_NAME;
+#elif defined(__APPLE__)
+	enabledInstanceExtensions[1] = VK_EXT_METAL_SURFACE_EXTENSION_NAME;
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
 	enabledInstanceExtensions[1] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
 #elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
@@ -61,17 +62,23 @@ static void createInstance() {
 	VkInstanceCreateInfo instanceCreateInfo; memset(&instanceCreateInfo, 0, sizeof(instanceCreateInfo));
 	instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	instanceCreateInfo.pNext = NULL;
+    // Enable portability enumeration bit
+    instanceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 	instanceCreateInfo.pApplicationInfo = (VkApplicationInfo*)&appInfo;
 	instanceCreateInfo.enabledExtensionCount = EXTENSION_COUNT_INSTANCE;
 	instanceCreateInfo.ppEnabledExtensionNames = (const char* const*)&enabledInstanceExtensions;
 	const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
 	instanceCreateInfo.ppEnabledLayerNames = (const char* const*)&validationLayerName;
-	instanceCreateInfo.enabledLayerCount = 0;
+	instanceCreateInfo.enabledLayerCount = 1;
 	if (VALIDATION_LAYER_VULKAN) { // validation layer for Vulkan debugging
 		instanceCreateInfo.enabledLayerCount = 1;
 	}
-	(vkCreateInstance(&instanceCreateInfo, NULL, &instance));
-	//VkResult resulteif = vkCreateInstance(&instanceCreateInfo, NULL, &instance);
+    VkResult result = vkCreateInstance(&instanceCreateInfo, NULL, &instance);
+
+    if (result != VK_SUCCESS) {
+        printf("Failed to create Vulkan instance! Error code: %d\n", result);
+    }
+    //VkResult resulteif = vkCreateInstance(&instanceCreateInfo, NULL, &instance);
 	//printf("vkCreateInstance %d.\n", resulteif);
 	uint32_t gpuCount = 0;
 	(vkEnumeratePhysicalDevices(instance, &gpuCount, NULL));
@@ -119,16 +126,14 @@ static void queryExtensions_createLogicalDevice_getQueue() {
 	supportedDeviceExtensions = (VkExtensionProperties*)malloc(extCount * sizeof(VkExtensionProperties));
 	//if (supportedDeviceExtensions == NULL) { ErrorWindow_EVENT(FILE_AND_LINE); }
 	vkEnumerateDeviceExtensionProperties(physicalDevice, NULL, &extCount, supportedDeviceExtensions);
-#define EXTENSION_COUNT_DEVICE 12
+#define EXTENSION_COUNT_DEVICE 10
 	const char* enabledDeviceExtensions[EXTENSION_COUNT_DEVICE] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 		VK_KHR_DEVICE_GROUP_EXTENSION_NAME, VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
 		VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME, // for VK_ACCESS_NONE in the pipeline barrier
 		VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME,  // for GL_EXT_shader_explicit_arithmetic_types_float16
 		VK_KHR_16BIT_STORAGE_EXTENSION_NAME, VK_KHR_8BIT_STORAGE_EXTENSION_NAME, VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_EXTENSION_NAME,
 		VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME, // for shader printf: GL_EXT_debug_printf
-		VK_KHR_SHADER_ATOMIC_INT64_EXTENSION_NAME,
 		VK_EXT_SHADER_ATOMIC_FLOAT_EXTENSION_NAME, // not fully supported on RX6600 (imageAtomicAdd not supported)
-		VK_EXT_SHADER_IMAGE_ATOMIC_INT64_EXTENSION_NAME,
 	};
 	for (uint32_t i = 0; i < EXTENSION_COUNT_DEVICE; i++) {
 		int found = 0; // Flag to indicate if the extension is found
@@ -253,7 +258,11 @@ static void queryExtensions_createLogicalDevice_getQueue() {
 	else {
 		printf("\t\t shaderBufferFloat16AtomicAdd is not supported.\n");
 	}
-	vkCreateDevice(physicalDevice, &deviceCreateInfo, NULL, &logicalDevice);
+    VkResult result = vkCreateDevice(physicalDevice, &deviceCreateInfo, NULL, &logicalDevice);
+    if (result != VK_SUCCESS) {
+        printf("Failed to create Vulkan Device! Error code: %d\n", result);
+    }
+
 	vkGetDeviceQueue(logicalDevice, computeQueueFamilyIndex, 0, &queue);
 }
 
@@ -287,7 +296,6 @@ static void createSwapChain_Images_ImageViews() {
 	//	2. Select a Surface Format (pixel format, color space)
 	uint32_t formatCount;
 	(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, NULL));
-	(formatCount - 1); // The Device (GPU) is expected to support at least 1 format
 	VkSurfaceFormatKHR* surfaceFormats;
 	surfaceFormats = (VkSurfaceFormatKHR*)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
 	(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, surfaceFormats));
