@@ -1,6 +1,5 @@
 #pragma once
 #include "Global.h"
-#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 // Declare the array to track key states
