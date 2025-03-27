@@ -35,11 +35,11 @@ static void createInstance() {
 		VK_KHR_SURFACE_EXTENSION_NAME,
 		VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 		VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME,
-		VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
 	};
 #if defined(_WIN32)
 	requestingInstanceExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME); // vkCreateWin32SurfaceKHR() will fail without it
 #elif defined(__APPLE__)
+	requestingInstanceExtensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME); // vkCreateInstance will fail with VK_ERROR_INCOMPATIBLE_DRIVER: https://stackoverflow.com/questions/72789012/why-does-vkcreateinstance-return-vk-error-incompatible-driver-on-macos-despite
 	requestingInstanceExtensions.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
 	requestingInstanceExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
@@ -65,8 +65,10 @@ static void createInstance() {
 	VkInstanceCreateInfo instanceCreateInfo; memset(&instanceCreateInfo, 0, sizeof(instanceCreateInfo));
 	instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	instanceCreateInfo.pNext = NULL;
+#if defined(__APPLE__)
     // Enable portability enumeration bit
     instanceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
 	instanceCreateInfo.pApplicationInfo = (VkApplicationInfo*)&appInfo;
 	instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(enabledInstanceExtensions.size());
 	instanceCreateInfo.ppEnabledExtensionNames = enabledInstanceExtensions.data();
@@ -139,8 +141,15 @@ static void queryExtensions_createLogicalDevice_getQueue() {
 		VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME, // for shader printf: GL_EXT_debug_printf
 		VK_KHR_SHADER_ATOMIC_INT64_EXTENSION_NAME,
 		VK_EXT_SHADER_ATOMIC_FLOAT_EXTENSION_NAME, // not fully supported on RX6600 (imageAtomicAdd not supported)
-		VK_EXT_SHADER_IMAGE_ATOMIC_INT64_EXTENSION_NAME,
+		//VK_EXT_SHADER_IMAGE_ATOMIC_INT64_EXTENSION_NAME,
 	};
+#if defined(__APPLE__) && defined(VK_KHR_portability_subset)
+	// From SaschaWillems - When running on iOS/macOS with MoltenVK and VK_KHR_portability_subset is defined and supported by the device, enable the extension
+	if (extensionSupported(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME))
+	{
+		requestingDeviceExtensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+	}
+#endif
 	// Filter out unsupported extensions
 	std::vector<const char*> enabledDeviceExtensions;
 	for (const char* extension : requestingDeviceExtensions) {
@@ -207,11 +216,11 @@ static void queryExtensions_createLogicalDevice_getQueue() {
 	atomicFloat2Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT;
 	atomicFloat2Features.shaderSharedFloat16AtomicAdd = VK_TRUE;
 
-	VkPhysicalDeviceShaderAtomicInt64FeaturesKHR atomicInt64Features; memset(&atomicInt64Features, 0, sizeof(VkPhysicalDeviceShaderAtomicInt64FeaturesKHR));
-	atomicInt64Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES_KHR;
-
-	VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT imageAtomicInt64Features; memset(&imageAtomicInt64Features, 0, sizeof(VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT));
-	imageAtomicInt64Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_ATOMIC_INT64_FEATURES_EXT;
+	//VkPhysicalDeviceShaderAtomicInt64FeaturesKHR atomicInt64Features; memset(&atomicInt64Features, 0, sizeof(VkPhysicalDeviceShaderAtomicInt64FeaturesKHR));
+	//atomicInt64Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES_KHR;
+	//
+	//VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT imageAtomicInt64Features; memset(&imageAtomicInt64Features, 0, sizeof(VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT));
+	//imageAtomicInt64Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_ATOMIC_INT64_FEATURES_EXT;
 
 	// Step 2: Initialize the VkPhysicalDeviceFeatures2 structure
 	VkPhysicalDeviceFeatures2 deviceFeatures2; memset(&deviceFeatures2, 0, sizeof(VkPhysicalDeviceFeatures2));
@@ -224,8 +233,8 @@ static void queryExtensions_createLogicalDevice_getQueue() {
 	storage8bitFeatures.pNext = &storage16bitFeatures;
 	storage16bitFeatures.pNext = &float16Int8Features;
 	float16Int8Features.pNext = &atomicFloatFeatures;
-	atomicFloatFeatures.pNext = &atomicInt64Features;
-	atomicInt64Features.pNext = &imageAtomicInt64Features;
+	//atomicFloatFeatures.pNext = &atomicInt64Features;
+	//atomicInt64Features.pNext = &imageAtomicInt64Features;
 
 	// Step 3: Query the physical device for supported features
 	vkGetPhysicalDeviceFeatures2(physicalDevice, &deviceFeatures2);
@@ -357,6 +366,17 @@ static void createSwapChain_Images_ImageViews() {
 	//	if (presentModes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR) swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
 	//}
 	free(presentModes);
+	// alpha compositing mode to use when this surface is composited together with other surfaces on certain window systems
+	VkCompositeAlphaFlagBitsKHR alphaCompositeMode = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR; // Default
+	if (surfCaps.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR) {
+		alphaCompositeMode = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	}else if (surfCaps.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR) {
+		alphaCompositeMode = VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR;
+	}else if (surfCaps.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR) {
+		alphaCompositeMode = VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR;
+	}else if (surfCaps.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR) {
+		alphaCompositeMode = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+	}
 	VkSwapchainCreateInfoKHR swapchainCI; memset(&swapchainCI, 0, sizeof(VkSwapchainCreateInfoKHR));
 	swapchainCI.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	swapchainCI.surface = surface;
@@ -370,7 +390,7 @@ static void createSwapChain_Images_ImageViews() {
 	swapchainCI.queueFamilyIndexCount = 0; // irrelevant if swapchainCI.imageSharingMode is not VK_SHARING_MODE_CONCURRENT
 	swapchainCI.presentMode = swapchainPresentMode;
 	swapchainCI.clipped = VK_TRUE; 	// Setting clipped to VK_TRUE allows the implementation to discard rendering outside of the surface area
-	swapchainCI.compositeAlpha = (VkCompositeAlphaFlagBitsKHR)surfCaps.supportedCompositeAlpha; // "VkCompositeAlphaFlagsKHR" is "typedef VkFlags VkCompositeAlphaFlagsKHR;"
+	swapchainCI.compositeAlpha = alphaCompositeMode;
 	// Image will be used as storage target in the compute shader 
 	swapchainCI.imageUsage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 	// Enable transfer source on swap chain images if supported
