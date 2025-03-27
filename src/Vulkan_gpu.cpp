@@ -21,52 +21,55 @@ static void createInstance() {
 	appInfo.pEngineName = GAME_NAME "_Engine";
 	appInfo.apiVersion = VK_API_VERSION_1_3;
 
-	VkExtensionProperties* supportedInstanceExtensions;
 	uint32_t extCount = 0;
-	(vkEnumerateInstanceExtensionProperties(NULL, &extCount, NULL));
-	supportedInstanceExtensions = (VkExtensionProperties*)malloc(extCount * sizeof(VkExtensionProperties));
-	if (supportedInstanceExtensions == NULL) { (FILE_AND_LINE); }
-	vkEnumerateInstanceExtensionProperties(NULL, &extCount, supportedInstanceExtensions);
-	printf("Supported Instance Extension (%d count):\n", extCount);
-	for (int i = 0; i < extCount; i++) {
-		printf("\t%d: %s\n", i, supportedInstanceExtensions[i].extensionName);
+	vkEnumerateInstanceExtensionProperties(NULL, &extCount, NULL);
+
+	std::vector<VkExtensionProperties> supportedInstanceExtensions(extCount);
+	vkEnumerateInstanceExtensionProperties(nullptr, &extCount, supportedInstanceExtensions.data());
+	// if (supportedInstanceExtensions == NULL) { (FILE_AND_LINE); }
+	std::cout << "Supported Instance Extensions (" << extCount << " count):\n";
+	for (uint32_t i = 0; i < extCount; i++) {
+		std::cout << "\t" << i << ": " << supportedInstanceExtensions[i].extensionName << "\n";
 	}
-#define EXTENSION_COUNT_INSTANCE 5
-	const char* enabledInstanceExtensions[EXTENSION_COUNT_INSTANCE] = {
-		VK_KHR_SURFACE_EXTENSION_NAME, "platformDependentSurface",
-		VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME,
-        VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME};
+	std::vector<const char*> requestingInstanceExtensions = {
+		VK_KHR_SURFACE_EXTENSION_NAME,
+		VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+		VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME,
+		VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
+	};
 #if defined(_WIN32)
-	enabledInstanceExtensions[1] = VK_KHR_WIN32_SURFACE_EXTENSION_NAME; // vkCreateWin32SurfaceKHR() will fail without it
+	requestingInstanceExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME); // vkCreateWin32SurfaceKHR() will fail without it
 #elif defined(__APPLE__)
-	enabledInstanceExtensions[1] = VK_EXT_METAL_SURFACE_EXTENSION_NAME;
+	requestingInstanceExtensions.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
-	enabledInstanceExtensions[1] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
-#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
-	enabledInstanceExtensions[1] = VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
+	requestingInstanceExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+#elif defined(VK_USE_PLATFORM_WAYLAND_KHR
+	requestingInstanceExtensions.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 #endif
-	for (uint32_t i = 0; i < EXTENSION_COUNT_INSTANCE; i++) {
-		int found = 0; // Flag to indicate if the extension is found
-		for (uint32_t j = 0; j < extCount; j++) {
-			if (strcmp(enabledInstanceExtensions[i], supportedInstanceExtensions[j].extensionName) == 0) {
-				if (1) printf("\t Instance Extension '%s' is supported.\n", enabledInstanceExtensions[i]);
-				found = 1;
+	// Filter out unsupported extensions
+	std::vector<const char*> enabledInstanceExtensions;
+	for (const char* extension : requestingInstanceExtensions) {
+		bool found = false;
+		for (const auto& supportedExtension : supportedInstanceExtensions) {
+			if (strcmp(extension, supportedExtension.extensionName) == 0) {
+				enabledInstanceExtensions.push_back(extension);
+				std::cout << "\t Instance Extension '" << extension << "' is supported.\n";
+				found = true;
 				break;
 			}
 		}
 		if (!found) {
-			if (1) printf("Extension '%s' is not supported.\n", enabledInstanceExtensions[i]);
+			std::cout << "\t Instance Extension '" << extension << "' is NOT supported.\n";
 		}
 	}
-	free(supportedInstanceExtensions);
 	VkInstanceCreateInfo instanceCreateInfo; memset(&instanceCreateInfo, 0, sizeof(instanceCreateInfo));
 	instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	instanceCreateInfo.pNext = NULL;
     // Enable portability enumeration bit
     instanceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 	instanceCreateInfo.pApplicationInfo = (VkApplicationInfo*)&appInfo;
-	instanceCreateInfo.enabledExtensionCount = EXTENSION_COUNT_INSTANCE;
-	instanceCreateInfo.ppEnabledExtensionNames = (const char* const*)&enabledInstanceExtensions;
+	instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(enabledInstanceExtensions.size());
+	instanceCreateInfo.ppEnabledExtensionNames = enabledInstanceExtensions.data();
 	const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
 	instanceCreateInfo.ppEnabledLayerNames = (const char* const*)&validationLayerName;
 	instanceCreateInfo.enabledLayerCount = 1;
@@ -74,14 +77,13 @@ static void createInstance() {
 		instanceCreateInfo.enabledLayerCount = 1;
 	}
     VkResult result = vkCreateInstance(&instanceCreateInfo, NULL, &instance);
-
     if (result != VK_SUCCESS) {
         printf("Failed to create Vulkan instance! Error code: %d\n", result);
     }
     //VkResult resulteif = vkCreateInstance(&instanceCreateInfo, NULL, &instance);
 	//printf("vkCreateInstance %d.\n", resulteif);
 	uint32_t gpuCount = 0;
-	(vkEnumeratePhysicalDevices(instance, &gpuCount, NULL));
+	vkEnumeratePhysicalDevices(instance, &gpuCount, NULL);
 }
 
 static void queryPhysicalDevice_selectQueueFamily() {
@@ -120,41 +122,46 @@ static void queryExtensions_createLogicalDevice_getQueue() {
 	printf("Logical Device and Queue:\n");
 	// Get list of supported GPU extensions
 	uint32_t extCount = 0;
-	VkExtensionProperties* supportedDeviceExtensions; // after a driver update, changed from 221 to 223, must be dynamically allocated
-	(vkEnumerateDeviceExtensionProperties(physicalDevice, NULL, &extCount, NULL));
+	vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extCount, nullptr); // after a driver update, changed from 221 to 223, must be dynamically allocated
 	//if (extCount <= 0) { ErrorWindow_EVENT(FILE_AND_LINE); }
-	supportedDeviceExtensions = (VkExtensionProperties*)malloc(extCount * sizeof(VkExtensionProperties));
+	std::vector<VkExtensionProperties> supportedDeviceExtensions(extCount);
+	vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extCount, supportedDeviceExtensions.data());
 	//if (supportedDeviceExtensions == NULL) { ErrorWindow_EVENT(FILE_AND_LINE); }
-	vkEnumerateDeviceExtensionProperties(physicalDevice, NULL, &extCount, supportedDeviceExtensions);
-#define EXTENSION_COUNT_DEVICE 10
-	const char* enabledDeviceExtensions[EXTENSION_COUNT_DEVICE] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-		VK_KHR_DEVICE_GROUP_EXTENSION_NAME, VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+	std::vector<const char*> requestingDeviceExtensions = {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+		VK_KHR_DEVICE_GROUP_EXTENSION_NAME,
+		VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
 		VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME, // for VK_ACCESS_NONE in the pipeline barrier
 		VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME,  // for GL_EXT_shader_explicit_arithmetic_types_float16
-		VK_KHR_16BIT_STORAGE_EXTENSION_NAME, VK_KHR_8BIT_STORAGE_EXTENSION_NAME, VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_EXTENSION_NAME,
+		VK_KHR_16BIT_STORAGE_EXTENSION_NAME,
+		VK_KHR_8BIT_STORAGE_EXTENSION_NAME,
+		VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_EXTENSION_NAME,
 		VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME, // for shader printf: GL_EXT_debug_printf
+		VK_KHR_SHADER_ATOMIC_INT64_EXTENSION_NAME,
 		VK_EXT_SHADER_ATOMIC_FLOAT_EXTENSION_NAME, // not fully supported on RX6600 (imageAtomicAdd not supported)
+		VK_EXT_SHADER_IMAGE_ATOMIC_INT64_EXTENSION_NAME,
 	};
-	for (uint32_t i = 0; i < EXTENSION_COUNT_DEVICE; i++) {
-		int found = 0; // Flag to indicate if the extension is found
-		for (uint32_t j = 0; j < extCount; j++) {
-			if (strcmp(enabledDeviceExtensions[i], supportedDeviceExtensions[j].extensionName) == 0) {
-				if (1) printf("\t Device Extension '%s' is supported.\n", enabledDeviceExtensions[i]);
-				found = 1;
+	// Filter out unsupported extensions
+	std::vector<const char*> enabledDeviceExtensions;
+	for (const char* extension : requestingDeviceExtensions) {
+		bool found = false;
+		for (const auto& supportedExtension : supportedDeviceExtensions) {
+			if (strcmp(extension, supportedExtension.extensionName) == 0) {
+				enabledDeviceExtensions.push_back(extension);
+				std::cout << "\t Device Extension '" << extension << "' is supported.\n";
+				found = true;
 				break;
 			}
 		}
 		if (!found) {
-			if (1) printf("\t Extension '%s' is not supported.\n", enabledDeviceExtensions[i]);
+			std::cout << "\t Device Extension '" << extension << "' is NOT supported.\n";
 		}
 	}
-	free(supportedDeviceExtensions);
-
 	VkDeviceCreateInfo deviceCreateInfo; memset(&deviceCreateInfo, 0, sizeof(VkDeviceCreateInfo));
 	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	// If the physicalDevice has SwapChain extension, it implies that the Device will be used for presentation
-	deviceCreateInfo.enabledExtensionCount = EXTENSION_COUNT_DEVICE;
-	deviceCreateInfo.ppEnabledExtensionNames = (const char* const*)enabledDeviceExtensions;
+	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(enabledDeviceExtensions.size());
+	deviceCreateInfo.ppEnabledExtensionNames = enabledDeviceExtensions.data();
 
 	// I am going to request Graphics and Compute queues
 	// Just use one Graphics/compute queue for now
@@ -275,11 +282,11 @@ static void createSurface(GLFWwindow* window) {
 //	surfaceCreateInfo.hwnd = Handle_to_Window;
 //	(vkCreateWin32SurfaceKHR(instance, &surfaceCreateInfo, NULL, &surface));
 //#elif defined(VK_USE_PLATFORM_MACOS_MVK)
-//	enabledInstanceExtensions[1] = VK_MVK_MACOS_SURFACE_EXTENSION_NAME;
+//	requestingInstanceExtensions[1] = VK_MVK_MACOS_SURFACE_EXTENSION_NAME;
 //#elif defined(VK_USE_PLATFORM_XCB_KHR)
-//	enabledInstanceExtensions[1] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
+//	requestingInstanceExtensions[1] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
 //#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
-//	enabledInstanceExtensions[1] = VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
+//	requestingInstanceExtensions[1] = VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
 //#endif
 	glfwCreateWindowSurface(instance, window, nullptr, &surface); // Vulkan GLFW
 }

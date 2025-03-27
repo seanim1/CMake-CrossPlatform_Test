@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "Global.h"
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -12,7 +13,6 @@
 #elif defined(__APPLE__)
 #include <vulkan/vulkan_metal.h>
 #endif
-
 #define GAME_NAME "Cross_Platform_Demo"
 #define PRESENT_IMG_COUNT 2
 #ifdef _DEBUG
