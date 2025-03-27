@@ -6,6 +6,11 @@ project(PROJECT_NAME)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# locates the Vulkan SDK on your system
+find_package(Vulkan REQUIRED)
+# adds this include path so that #include <vulkan/vulkan.h> works
+include_directories(${Vulkan_INCLUDE_DIRS})
+
 # Find GLFW
 if(WIN32)
     # Specify the path to the GLFW installation directory in vcpkg
@@ -43,8 +48,8 @@ add_executable(EXECUTABLE_TARGET_NAME ${SOURCES})
 
 # Only add post-build commands after the target is created
 if(WIN32)
-    # Link GLFW with your project
-    target_link_libraries(EXECUTABLE_TARGET_NAME glfw)
+    # Link GLFW and Vulkan with your project
+    target_link_libraries(EXECUTABLE_TARGET_NAME glfw ${Vulkan_LIBRARIES})
 
     add_custom_command(TARGET EXECUTABLE_TARGET_NAME POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -54,8 +59,8 @@ else()
     # Include GLFW headers
     include_directories(${GLFW_INCLUDE_DIR})
 
-    # Link GLFW with your project
-    target_link_libraries(EXECUTABLE_TARGET_NAME ${GLFW_LIBRARY})
+    # Link GLFW and Vulkan with your project
+    target_link_libraries(EXECUTABLE_TARGET_NAME ${GLFW_LIBRARY} ${Vulkan_LIBRARIES})
 
     add_custom_command(TARGET EXECUTABLE_TARGET_NAME POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
