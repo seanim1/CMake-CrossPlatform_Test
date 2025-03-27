@@ -143,12 +143,10 @@ static void queryExtensions_createLogicalDevice_getQueue() {
 		VK_EXT_SHADER_ATOMIC_FLOAT_EXTENSION_NAME, // not fully supported on RX6600 (imageAtomicAdd not supported)
 		//VK_EXT_SHADER_IMAGE_ATOMIC_INT64_EXTENSION_NAME,
 	};
-#if defined(__APPLE__) && defined(VK_KHR_portability_subset)
+#if defined(__APPLE__)
 	// From SaschaWillems - When running on iOS/macOS with MoltenVK and VK_KHR_portability_subset is defined and supported by the device, enable the extension
-	if (extensionSupported(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME))
-	{
-		requestingDeviceExtensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
-	}
+    requestingDeviceExtensions.push_back(VK_KHR_portability_subset);
+
 #endif
 	// Filter out unsupported extensions
 	std::vector<const char*> enabledDeviceExtensions;
