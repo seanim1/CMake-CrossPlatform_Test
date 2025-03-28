@@ -1,4 +1,4 @@
-# CMake GUI skeleton for Windows, Linux, MacOS
+# Vulkan & GLFW skeleton for Windows, Linux, MacOS
 Display CPU specs, begin a GLFW window, initialize Vulkan (upto VkSurface creation).
 ## Install Vulkan SDK
 - [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
