@@ -1,8 +1,10 @@
 # CMake GUI skeleton for Windows, Linux, MacOS
-Display processor specs then begin a GUI.
+Display CPU specs, begin a GLFW window, initialize Vulkan (upto VkSurface creation).
+## Install Vulkan SDK
+- [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
 ## Installing GLFW for CMake
 
-### Windows: Installing GLFW
+### Windows
 
 - [Install vcpkg, a C++ package manager](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell)
 - Open terminal (Command Prompt or Powershell).
