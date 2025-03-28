@@ -1,5 +1,4 @@
 #include "GLFW_gui.h"
-static GLFWwindow* window;
 
 // Initialize the key state array to false
 bool keys[GLFW_KEY_LAST + 1] = { false };
@@ -25,17 +24,22 @@ void init_GUI() {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Prevents OpenGL Context Creation
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    // Create a GLFW windowed mode window
-    window = glfwCreateWindow(800, 600, "Cross-Platform GUI", nullptr, nullptr);
-
-    // Set the key callback function
-    glfwSetKeyCallback(window, keyCallback);
+    // Returns whether the Vulkan loader and an ICD have been found.
+    if (glfwVulkanSupported()) {
+        std::cout << "GLFW: Vulkan loader and an ICD have been found" << std::endl;
+    }
+    uint32_t count = 0;
+    const char** extensions = glfwGetRequiredInstanceExtensions(&count);
+    printf("GLFW: Vulkan instance extensions required by GLFW:\n");
+    for (uint32_t i = 0; i < count; i++) {
+        printf("-  %s\n", extensions[i]);
+    }
 }
-void destroy_GUI() {
+void destroy_GUI(GLFWwindow* window) {
     glfwDestroyWindow(window);
     glfwTerminate();
 }
-int loop_GUI() {
+int loop_GUI(GLFWwindow* window) {
     // Poll events (like keyboard or mouse input)
     glfwPollEvents();
     if (keys[GLFW_KEY_W]) std::cout << "Holding W" << std::endl;

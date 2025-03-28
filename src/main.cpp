@@ -1,5 +1,6 @@
 #include "Global.h"
 #include "GLFW_gui.h"
+#include "Vulkan_gpu.h"
 
 #ifdef _WIN32
 #include "Windows_Specific.h"
@@ -11,11 +12,15 @@
 
 int main() {
     queryProcessor_crossPlatform();
-
     init_GUI();
-    while (!loop_GUI()) {
+    // Create a GLFW windowed mode window
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Cross-Platform GUI", nullptr, nullptr);
+    // Set the key callback function
+    glfwSetKeyCallback(window, keyCallback);
+    initVulkan(window);
+    while (!loop_GUI(window)) {
 
     }
-    destroy_GUI();
+    destroy_GUI(window);
     return 0;
 }
