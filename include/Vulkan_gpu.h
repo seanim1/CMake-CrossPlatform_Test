@@ -6,9 +6,11 @@
 #if defined(_WIN32)
 #include <windows.h>
 #include <vulkan/vulkan_win32.h>
-#elif defined(VK_USE_PLATFORM_XCB_KHR)
+#elif defined(__linux__)
+#include <xcb/xcb.h>
 #include <vulkan/vulkan_xcb.h>
-#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
+#elif defined(__linux__) && defined(USING_WAYLAND)
+#include <wayland-client.h>
 #include <vulkan/vulkan_wayland.h>
 #elif defined(__APPLE__)
 #include <vulkan/vulkan_metal.h>

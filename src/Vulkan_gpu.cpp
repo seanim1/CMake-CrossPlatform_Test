@@ -41,11 +41,12 @@ static void createInstance() {
 #elif defined(__APPLE__)
 	requestingInstanceExtensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME); // vkCreateInstance will fail with VK_ERROR_INCOMPATIBLE_DRIVER: https://stackoverflow.com/questions/72789012/why-does-vkcreateinstance-return-vk-error-incompatible-driver-on-macos-despite
 	requestingInstanceExtensions.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
-#elif defined(VK_USE_PLATFORM_XCB_KHR)
+#elif defined(__linux__)
 	requestingInstanceExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
-#elif defined(VK_USE_PLATFORM_WAYLAND_KHR
+#elif defined(__linux__) && defined(USING_WAYLAND)
 	requestingInstanceExtensions.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 #endif
+
 	// Filter out unsupported extensions
 	std::vector<const char*> enabledInstanceExtensions;
 	for (const char* extension : requestingInstanceExtensions) {
@@ -295,7 +296,10 @@ static void createSurface(GLFWwindow* window) {
 //#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
 //	requestingInstanceExtensions[1] = VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
 //#endif
-	glfwCreateWindowSurface(instance, window, nullptr, &surface); // Vulkan GLFW
+	VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface); // Vulkan GLFW
+	if (result != VK_SUCCESS) {
+        printf("Failed to create Vulkan Surface! Error code: %d\n", result);
+    }
 }
 static void createSwapChain_Images_ImageViews() {
 	//	1. Get physical device surface properties and formats: Surface Capabilities (min_C/max_C number of images in swap chain, min_C/max_C width and height of images)

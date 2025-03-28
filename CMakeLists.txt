@@ -10,6 +10,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Vulkan REQUIRED)
 # adds this include path so that #include <vulkan/vulkan.h> works
 include_directories(${Vulkan_INCLUDE_DIRS})
+message(STATUS "Vulkan Include Dirs: ${Vulkan_INCLUDE_DIRS}")
+message(STATUS "Vulkan Libraries: ${Vulkan_LIBRARIES}")
 
 # Find GLFW
 if(WIN32)
