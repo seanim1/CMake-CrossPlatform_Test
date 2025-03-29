@@ -11,7 +11,7 @@
 #endif
 
 int main() {
-    queryProcessor_crossPlatform();
+    queryProcessor_PLATFORM();
     GLFWwindow* window = init_GLFW();
     initVulkan(window);
     while (!glfwWindowShouldClose(window)) {

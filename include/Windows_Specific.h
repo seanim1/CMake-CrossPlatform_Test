@@ -3,11 +3,7 @@
 
 #include "Global.h"
 #include <windows.h>
-void queryProcessor();
-inline void queryProcessor_crossPlatform() {
-    std::cout << "Hello, Windows OS!" << std::endl;
-    queryProcessor();
-}
+void queryProcessor_PLATFORM();
 #define CATCH_ERROR(result)                                    \
 if (result < 0) {                                                               \
     MessageBoxA(NULL, FILE_AND_LINE, "Error!", MB_ICONEXCLAMATION | MB_OK);   \

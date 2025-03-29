@@ -140,7 +140,8 @@ static void queryProcessorName() {
     printf("CPU Name: %s\n", cpuName);
 }
 
-void queryProcessor() {
+void queryProcessor_PLATFORM() {
+    std::cout << "Hello, Windows OS!" << std::endl;
     queryProcessorName();
     queryProcessorSpecs();
 }
