@@ -18,12 +18,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 }
 
 // Function to initialize GLFW and set the key callback
-void init_GUI() {
+GLFWwindow* init_GLFW() {
     // Initialize GLFW
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Prevents OpenGL Context Creation
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
     // Returns whether the Vulkan loader and an ICD have been found.
     if (glfwVulkanSupported()) {
         std::cout << "GLFW: Vulkan loader and an ICD have been found" << std::endl;
@@ -34,18 +33,11 @@ void init_GUI() {
     for (uint32_t i = 0; i < count; i++) {
         printf("-  %s\n", extensions[i]);
     }
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Cross-Platform GUI", nullptr, nullptr); // Create a GLFW windowed mode window
+    glfwSetKeyCallback(window, keyCallback); // Set the key callback function
+    return window;
 }
-void destroy_GUI(GLFWwindow* window) {
+void destroy_GLFW(GLFWwindow* window) {
     glfwDestroyWindow(window);
     glfwTerminate();
-}
-int loop_GUI(GLFWwindow* window) {
-    // Poll events (like keyboard or mouse input)
-    glfwPollEvents();
-    if (keys[GLFW_KEY_W]) std::cout << "Holding W" << std::endl;
-    if (keys[GLFW_KEY_A]) std::cout << "Holding A" << std::endl;
-    if (keys[GLFW_KEY_S]) std::cout << "Holding S" << std::endl;
-    if (keys[GLFW_KEY_D]) std::cout << "Holding D" << std::endl;
-
-    return glfwWindowShouldClose(window);
 }

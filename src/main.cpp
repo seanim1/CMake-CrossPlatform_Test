@@ -12,15 +12,16 @@
 
 int main() {
     queryProcessor_crossPlatform();
-    init_GUI();
-    // Create a GLFW windowed mode window
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Cross-Platform GUI", nullptr, nullptr);
-    // Set the key callback function
-    glfwSetKeyCallback(window, keyCallback);
+    GLFWwindow* window = init_GLFW();
     initVulkan(window);
-    while (!loop_GUI(window)) {
-
+    while (!glfwWindowShouldClose(window)) {
+        // Poll events (like keyboard or mouse input)
+        glfwPollEvents();
+        if (keys[GLFW_KEY_W]) std::cout << "Holding W" << std::endl;
+        if (keys[GLFW_KEY_A]) std::cout << "Holding A" << std::endl;
+        if (keys[GLFW_KEY_S]) std::cout << "Holding S" << std::endl;
+        if (keys[GLFW_KEY_D]) std::cout << "Holding D" << std::endl;
     }
-    destroy_GUI(window);
+    destroy_GLFW(window);
     return 0;
 }
