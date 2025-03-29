@@ -2,7 +2,8 @@
 #include <vector>
 #include "Global.h"
 #include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_vulkan.h>
 #if defined(_WIN32)
 #include <windows.h>
 #include <vulkan/vulkan_win32.h>
@@ -22,5 +23,5 @@
 #else
 #define VALIDATION_LAYER_VULKAN 0
 #endif
-void initVulkan(GLFWwindow* window);
+void initVulkan(SDL_Window* window);
 
