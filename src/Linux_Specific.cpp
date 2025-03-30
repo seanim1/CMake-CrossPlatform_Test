@@ -27,7 +27,7 @@ void queryProcessorName() {
 int count_physical_cores() {
     DIR* dir;
     struct dirent* entry;
-    char path[128];
+    char path[512];
     int core_ids[256] = {0}; // Assume max 256 cores
     int core_count = 0;
 

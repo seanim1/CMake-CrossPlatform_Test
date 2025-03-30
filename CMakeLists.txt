@@ -25,11 +25,20 @@ if(WIN32)
     include_directories(${SDL3_INCLUDE_DIRS})   # Add include directory for SDL3
     message(STATUS "SDL3 Include Dirs: ${SDL3_INCLUDE_DIRS}")
     message(STATUS "SDL3 Library: ${SDL3_LIBRARIES}")
-else() # Linux/macOS
+elseif(APPLE) # macOS
 	set(CMAKE_PREFIX_PATH "/opt/homebrew/include/SDL3")
     # The path to your SDL3.dll file
     set(SDL3_DYLIB_PATH "/opt/homebrew/lib/libSDL3.dylib")
 
+    # Find SDL3
+    find_package(SDL3 REQUIRED)
+    include_directories(${SDL3_INCLUDE_DIRS})
+    message(STATUS "SDL3 Include Dirs: ${SDL3_INCLUDE_DIRS}")
+    message(STATUS "SDL3 Library: ${SDL3_LIBRARIES}")
+elseif(UNIX) # Linux
+    set(CMAKE_PREFIX_PATH "/home/finalsean/Downloads/SDL/include/SDL3")
+    # The path to your SDL3.dll file
+    set(SDL3_SO_PATH "/home/finalsean/Downloads/SDL/build/libSDL3.so")
     # Find SDL3
     find_package(SDL3 REQUIRED)
     include_directories(${SDL3_INCLUDE_DIRS})
@@ -56,8 +65,7 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${SDL3_DLL_PATH}
         $<TARGET_FILE_DIR:EXECUTABLE_TARGET_NAME>/SDL3.dll)
-endif()
-if(APPLE)
+elseif(APPLE)
     # Link SDL3 and Vulkan with your project
     target_link_libraries(EXECUTABLE_TARGET_NAME SDL3::SDL3 ${Vulkan_LIBRARIES})
 
@@ -66,14 +74,13 @@ if(APPLE)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SDL3_DYLIB_PATH}"
         $<TARGET_FILE_DIR:EXECUTABLE_TARGET_NAME>/libSDL3.so)
-
-else()
+elseif(UNIX) # Linux
     # Link SDL3 and Vulkan with your project
     target_link_libraries(EXECUTABLE_TARGET_NAME SDL3::SDL3 ${Vulkan_LIBRARIES})
 
     # Post-build command to copy SDL3 shared library to output directory
     add_custom_command(TARGET EXECUTABLE_TARGET_NAME POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${SDL3_LIBRARIES}"
+        "${SDL3_SO_PATH}"
         $<TARGET_FILE_DIR:EXECUTABLE_TARGET_NAME>/libSDL3.so)
 endif()
