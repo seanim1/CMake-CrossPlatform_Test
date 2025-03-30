@@ -1,17 +1,15 @@
-# Vulkan & GLFW skeleton for Windows, Linux, MacOS
-Display CPU specs, begin a GLFW window, initialize Vulkan (upto VkSurface creation).
+# Vulkan & SDL3 skeleton for Windows, Linux, MacOS
+- Platform Independent: Display CPU specs.
+- SDL3: begin a SDL3 window, handle inputs.
+- Vulkan: Query extensions. Create a VkSurface.
 ## Install Vulkan SDK
 - [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
 ## Installing GLFW for CMake
 
 ### Windows
-
-- [Install vcpkg, a C++ package manager](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell)
-- Open terminal (Command Prompt or Powershell).
-- Install glfw3 64-bit.
-   ```bash
-   vcpkg install glfw3:x64-windows
-- Now you should be able to locate
+- [Download SDL](https://github.com/libsdl-org/SDL/releases)
+- Download `SDL3-devel-3.2.8-VC.zip` for Visual Studio C++
+- you should be able to locate
    - .cmake (glfw3/GLFW3Config.cmake) at: "C:\vcpkg\installed\x64-windows\share\glfw3"
    - Header (GLFW/glfw3.h) at: "C:\vcpkg\installed\x64-windows\include"
    - Dynamic Library at: "C:\vcpkg\installed\x64-windows\bin\glfw3.dll"
