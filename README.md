@@ -26,13 +26,15 @@
 ### MacOS
 - Install Homebrew.
 - Open terminal (Bash).
-- Install glfw.
+- Install SDL3.
    ```bash
-   brew install glfw
+   brew install sdl3
 - Now you should be able to locate
-   - Header (GLFW/glfw3.h) at: "/opt/homebrew/include"
-   - Dynamic Library at: "/opt/homebrew/lib/libglfw.dylib"
-
+   - Headers (SDL3/SDL.h) at: "/opt/homebrew/include"
+   - Dynamic Library at: "/opt/homebrew/lib/libSDL3.dylib"
+- Open CMakeLists.txt file and set the paths accordingly. (Example)
+   - set(CMAKE_PREFIX_PATH "/opt/homebrew/include/SDL3")
+   - set(SDL3_DYLIB_PATH "/opt/homebrew/lib/libSDL3.dylib")
 ## Run CMake:
 ### Windows
 - If the CMake build fails to find glfw3.dll, then you might have to manually type in the path to the glfw3.dll in CMakeLists.txt.
