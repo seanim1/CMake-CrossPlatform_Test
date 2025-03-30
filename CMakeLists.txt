@@ -8,8 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # locates the Vulkan SDK on your system
 find_package(Vulkan REQUIRED)
-# adds this include path so that #include <vulkan/vulkan.h> works
-include_directories(${Vulkan_INCLUDE_DIRS})
+include_directories(${Vulkan_INCLUDE_DIRS}) # adds this include path so that #include <vulkan/vulkan.h> works
 message(STATUS "Vulkan Include Dirs: ${Vulkan_INCLUDE_DIRS}")
 message(STATUS "Vulkan Libraries: ${Vulkan_LIBRARIES}")
 
@@ -17,29 +16,22 @@ message(STATUS "Vulkan Libraries: ${Vulkan_LIBRARIES}")
 if(WIN32)
     # Specify the path to the SDL3 folder that contains .cmake files.
     set(CMAKE_PREFIX_PATH "C:/Users/Sean/Downloads/SDL3-devel-3.2.8-VC/SDL3-3.2.8/cmake")
+    # The path to your SDL3.dll file
+    set(SDL3_DLL_PATH "C:/Users/Sean/Downloads/SDL3-devel-3.2.8-VC/SDL3-3.2.8/lib/x64/SDL3.dll")
 
     # If CMAKE_PREFIX_PATH is set:
-    #   CMake will attempt to find GLFW3Config.cmake or glfw3-config.cmake in the subdirectories of CMAKE_PREFIX_PATH
-    # looks like "GLFW3" only works on WIN32, and "GLFW" only works on Linux...
-    
-    # Find SDL3 automatically
+    #   CMake will attempt to find GLFW3Config.cmake or sdl3-config.cmake in the subdirectories of CMAKE_PREFIX_PATH
     find_package(SDL3 REQUIRED)
-
-    # Add include directory for SDL3
-    include_directories(${SDL3_INCLUDE_DIRS})
+    include_directories(${SDL3_INCLUDE_DIRS})   # Add include directory for SDL3
     message(STATUS "SDL3 Include Dirs: ${SDL3_INCLUDE_DIRS}")
     message(STATUS "SDL3 Library: ${SDL3_LIBRARIES}")
 else() # Linux/macOS
 
-    # It adds "${CMAKE_SOURCE_DIR}" to CMAKE_MODULE_PATH, allowing CMake to search for .cmake files in the source directory
-    # Make sure CMake finds FindGLFW.cmake
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
-
-    # When find_package(GLFW REQUIRED) is called:
-    #   1. CMake first looks in CMAKE_MODULE_PATH for FindGLFW.cmake
-    #   2. If found, it runs FindGLFW.cmake, which uses find_path() and find_library() to locate GLFW.
-    # Find GLFW using FindGLFW.cmake
-    find_package(GLFW REQUIRED)
+    # Find SDL3
+    find_package(SDL3 REQUIRED)
+    include_directories(${SDL3_INCLUDE_DIRS})
+    message(STATUS "SDL3 Include Dirs: ${SDL3_INCLUDE_DIRS}")
+    message(STATUS "SDL3 Library: ${SDL3_LIBRARIES}")
 endif()
 
 # Add include directory so headers can be found
@@ -53,25 +45,21 @@ add_executable(EXECUTABLE_TARGET_NAME ${SOURCES})
 
 # Only add post-build commands after the target is created
 if(WIN32)
-    # Link GLFW and Vulkan with your project
+    # Link SDL3 and Vulkan with your project
     target_link_libraries(EXECUTABLE_TARGET_NAME SDL3::SDL3 ${Vulkan_LIBRARIES})
-    # The path to your glfw3.dll file
-    set(SDL3_DLL_PATH "C:/Users/Sean/Downloads/SDL3-devel-3.2.8-VC/SDL3-3.2.8/lib/x64/SDL3.dll")
-
+    
     # Post-build command to copy the DLL to the executable directory
     add_custom_command(TARGET EXECUTABLE_TARGET_NAME POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${SDL3_DLL_PATH}
         $<TARGET_FILE_DIR:EXECUTABLE_TARGET_NAME>/SDL3.dll)
 else()
-    # Include GLFW headers
-    include_directories(${GLFW_INCLUDE_DIR})
+    # Link SDL3 and Vulkan with your project
+    target_link_libraries(EXECUTABLE_TARGET_NAME SDL3::SDL3 ${Vulkan_LIBRARIES})
 
-    # Link GLFW and Vulkan with your project
-    target_link_libraries(EXECUTABLE_TARGET_NAME ${GLFW_LIBRARY} ${Vulkan_LIBRARIES})
-
+    # Post-build command to copy SDL3 shared library to output directory
     add_custom_command(TARGET EXECUTABLE_TARGET_NAME POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${GLFW_LIBRARY}"
-        $<TARGET_FILE_DIR:EXECUTABLE_TARGET_NAME>/libglfw.so)
+        "${SDL3_LIBRARIES}"
+        $<TARGET_FILE_DIR:EXECUTABLE_TARGET_NAME>/libSDL3.so)
 endif()
