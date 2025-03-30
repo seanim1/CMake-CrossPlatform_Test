@@ -146,7 +146,7 @@ static void queryExtensions_createLogicalDevice_getQueue() {
 	};
 #if defined(__APPLE__)
 	// From SaschaWillems - When running on iOS/macOS with MoltenVK and VK_KHR_portability_subset is defined and supported by the device, enable the extension
-    requestingDeviceExtensions.push_back(VK_KHR_portability_subset);
+    requestingDeviceExtensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
 
 #endif
 	// Filter out unsupported extensions

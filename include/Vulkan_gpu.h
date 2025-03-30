@@ -14,7 +14,10 @@
 #include <wayland-client.h>
 #include <vulkan/vulkan_wayland.h>
 #elif defined(__APPLE__)
+#define VK_ENABLE_BETA_EXTENSIONS
+
 #include <vulkan/vulkan_metal.h>
+#include <vulkan/vulkan_beta.h>
 #endif
 #define GAME_NAME "Cross_Platform_Demo"
 #define PRESENT_IMG_COUNT 2

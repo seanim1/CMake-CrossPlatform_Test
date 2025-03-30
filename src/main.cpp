@@ -40,7 +40,7 @@ int main() {
     }
 
     const Uint32 targetTime = 16; // Target interval in milliseconds (16ms ~ 60 FPS)
-    Uint32 currentTime = SDL_GetTicks();
+    Uint64 currentTime = SDL_GetTicks();
     std::cout << "Executing logic at " << currentTime << " ms" << std::endl;
 
     bool running = true;
