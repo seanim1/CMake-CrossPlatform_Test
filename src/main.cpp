@@ -1,5 +1,4 @@
 #include "Global.h"
-#include "GLFW_gui.h"
 #include "Vulkan_gpu.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
@@ -15,7 +14,7 @@
 #define LOCK_60FPS
 
 int main() {
-    queryProcessor_PLATFORM();
+    CPU_CAPABILITIES cpuCaps = queryProcessor_PLATFORM();
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return -1;

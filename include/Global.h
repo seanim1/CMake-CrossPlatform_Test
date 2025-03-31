@@ -11,7 +11,6 @@ typedef struct CPU_CAPABILITIES {
 	uint32_t L2cacheSize_Byte;
 	uint32_t L3cacheSize_Byte;
 } CPU_CAPABILITIES;
-extern CPU_CAPABILITIES cpuCap;
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)

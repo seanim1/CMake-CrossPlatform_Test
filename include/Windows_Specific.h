@@ -3,7 +3,7 @@
 
 #include "Global.h"
 #include <windows.h>
-void queryProcessor_PLATFORM();
+CPU_CAPABILITIES queryProcessor_PLATFORM();
 #define CATCH_ERROR(result)                                    \
 if (result < 0) {                                                               \
     MessageBoxA(NULL, FILE_AND_LINE, "Error!", MB_ICONEXCLAMATION | MB_OK);   \
