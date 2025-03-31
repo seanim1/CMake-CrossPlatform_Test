@@ -55,29 +55,23 @@ file(GLOB SOURCES "src/*.cpp")
 # EXECUTABLE_TARGET_NAME name of the compiled executable
 add_executable(EXECUTABLE_TARGET_NAME ${SOURCES})
 
+# Link SDL3 and Vulkan with your project
+target_link_libraries(EXECUTABLE_TARGET_NAME SDL3::SDL3 ${Vulkan_LIBRARIES})
+
 # Only add post-build commands after the target is created
-if(WIN32)
-    # Link SDL3 and Vulkan with your project
-    target_link_libraries(EXECUTABLE_TARGET_NAME SDL3::SDL3 ${Vulkan_LIBRARIES})
-    
+if(WIN32) 
     # Post-build command to copy the DLL to the executable directory
     add_custom_command(TARGET EXECUTABLE_TARGET_NAME POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${SDL3_DLL_PATH}
         $<TARGET_FILE_DIR:EXECUTABLE_TARGET_NAME>/SDL3.dll)
 elseif(APPLE)
-    # Link SDL3 and Vulkan with your project
-    target_link_libraries(EXECUTABLE_TARGET_NAME SDL3::SDL3 ${Vulkan_LIBRARIES})
-
     # Post-build command to copy SDL3 shared library to output directory
     add_custom_command(TARGET EXECUTABLE_TARGET_NAME POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SDL3_DYLIB_PATH}"
-        $<TARGET_FILE_DIR:EXECUTABLE_TARGET_NAME>/libSDL3.so)
+        $<TARGET_FILE_DIR:EXECUTABLE_TARGET_NAME>/libSDL3.dylib)
 elseif(UNIX) # Linux
-    # Link SDL3 and Vulkan with your project
-    target_link_libraries(EXECUTABLE_TARGET_NAME SDL3::SDL3 ${Vulkan_LIBRARIES})
-
     # Post-build command to copy SDL3 shared library to output directory
     add_custom_command(TARGET EXECUTABLE_TARGET_NAME POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
