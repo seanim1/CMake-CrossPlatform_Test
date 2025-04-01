@@ -146,7 +146,7 @@ static void queryExtensions_createLogicalDevice_getQueue() {
 	};
 #if defined(__APPLE__)
 	// From SaschaWillems - When running on iOS/macOS with MoltenVK and VK_KHR_portability_subset is defined and supported by the device, enable the extension
-    requestingDeviceExtensions.push_back(VK_KHR_portability_subset);
+    requestingDeviceExtensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
 
 #endif
 	// Filter out unsupported extensions
@@ -281,7 +281,7 @@ static void queryExtensions_createLogicalDevice_getQueue() {
 	vkGetDeviceQueue(logicalDevice, computeQueueFamilyIndex, 0, &queue);
 }
 
-static void createSurface(GLFWwindow* window) {
+static void createSurface(SDL_Window* window) {
 	// Create the os-specific surface
 //#if defined(_WIN32)
 //	VkWin32SurfaceCreateInfoKHR surfaceCreateInfo; memset(&surfaceCreateInfo, 0, sizeof(VkWin32SurfaceCreateInfoKHR));
@@ -296,10 +296,10 @@ static void createSurface(GLFWwindow* window) {
 //#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
 //	requestingInstanceExtensions[1] = VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
 //#endif
-	VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface); // Vulkan GLFW
+	bool result = SDL_Vulkan_CreateSurface(window, instance, nullptr, &surface);
 	if (result != VK_SUCCESS) {
-        printf("Failed to create Vulkan Surface! Error code: %d\n", result);
-    }
+		printf("Failed to create Vulkan Surface! Error code: %d\n", result);
+	}
 }
 static void createSwapChain_Images_ImageViews() {
 	//	1. Get physical device surface properties and formats: Surface Capabilities (min_C/max_C number of images in swap chain, min_C/max_C width and height of images)
@@ -438,7 +438,7 @@ static void createSwapChain_Images_ImageViews() {
 	}
 }
 
-void initVulkan(GLFWwindow* window) {
+void initVulkan(SDL_Window* window) {
 	createInstance();
 	queryPhysicalDevice_selectQueueFamily();
 	queryExtensions_createLogicalDevice_getQueue();

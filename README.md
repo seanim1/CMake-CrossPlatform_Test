@@ -1,42 +1,42 @@
-# Vulkan & GLFW skeleton for Windows, Linux, MacOS
-Display CPU specs, begin a GLFW window, initialize Vulkan (upto VkSurface creation).
+# Vulkan & SDL3 skeleton for Windows, Linux, MacOS
+- Platform Independent: Display CPU specs.
+- SDL3: begin a SDL3 window, handle inputs.
+- Vulkan: Query extensions. Create a VkSurface.
 ## Install Vulkan SDK
 - [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
-## Installing GLFW for CMake
+## Installing SDL3 for development
 
 ### Windows
-
-- [Install vcpkg, a C++ package manager](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell)
-- Open terminal (Command Prompt or Powershell).
-- Install glfw3 64-bit.
-   ```bash
-   vcpkg install glfw3:x64-windows
-- Now you should be able to locate
+- [Download SDL](https://github.com/libsdl-org/SDL/releases)
+- Download `SDL3-devel-3.2.8-VC.zip` for Visual Studio C++
+- you should be able to locate
    - .cmake (glfw3/GLFW3Config.cmake) at: "C:\vcpkg\installed\x64-windows\share\glfw3"
    - Header (GLFW/glfw3.h) at: "C:\vcpkg\installed\x64-windows\include"
    - Dynamic Library at: "C:\vcpkg\installed\x64-windows\bin\glfw3.dll"
 ### Linux (Ubuntu)
 - Open terminal (Bash).
-- Install glfw.
+- I had to build SDL from source
    ```bash
-   sudo apt-get install libglfw3 libglfw3-dev
-- Now you should be able to locate
-   - .cmake (glfw3/GLFW3Config.cmake) at: "/usr/lib/x86_64-linux-gnu/cmake/glfw3"
-   - Header (GLFW/glfw3.h) at: "/usr/include"
-   - Dynamic Library at: "/usr/lib/x86_64-linux-gnu/libglfw.so"
+   git clone https://github.com/libsdl-org/SDL.git
+   cd SDL
+   mkdir build && cd build
+   cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+   make -j$(nproc)
+   sudo make install
+
+- Open CMakeLists.txt file and set the paths accordingly
 
 ### MacOS
 - Install Homebrew.
 - Open terminal (Bash).
-- Install glfw.
+- Install SDL3.
    ```bash
-   brew install glfw
+   brew install sdl3
 - Now you should be able to locate
-   - Header (GLFW/glfw3.h) at: "/opt/homebrew/include"
-   - Dynamic Library at: "/opt/homebrew/lib/libglfw.dylib"
-
+   - Headers (SDL3/SDL.h) at: "/opt/homebrew/include"
+   - Dynamic Library at: "/opt/homebrew/lib/libSDL3.dylib"
+- Open CMakeLists.txt file and set the paths accordingly. (Example)
+   - set(CMAKE_PREFIX_PATH "/opt/homebrew/include/SDL3")
+   - set(SDL3_DYLIB_PATH "/opt/homebrew/lib/libSDL3.dylib")
 ## Run CMake:
-### Windows
-- If the CMake build fails to find glfw3.dll, then you might have to manually type in the path to the glfw3.dll in CMakeLists.txt.
-### Linux & MacOS
-- CMake should be able to find the header and library automatically.
+

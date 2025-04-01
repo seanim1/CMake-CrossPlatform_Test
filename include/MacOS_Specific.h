@@ -4,7 +4,7 @@
 #include <unistd.h> // for _SC_NPROCESSORS_ONLN
 #include <sys/sysctl.h>  // For sysctlbyname on macOS
 void queryProcessorName();
-inline void queryProcessor_crossPlatform() {
+inline void queryProcessor_PLATFORM() {
     std::cout << "Hello, Apple MacOS!" << std::endl;
     queryProcessorName();
 }

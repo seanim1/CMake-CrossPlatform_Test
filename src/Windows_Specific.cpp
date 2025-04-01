@@ -9,10 +9,12 @@ static void print_binary_64bits(uint64_t mask, uint8_t bitCount) {
         printf("%d", (mask >> i) & 1);
     }
 }
-static void queryProcessorSpecs() {
+static CPU_CAPABILITIES queryProcessorSpecs() {
     // Get the logical processor information
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
+
+    CPU_CAPABILITIES cpuCap;
     cpuCap.logicalThreadCount = sysInfo.dwNumberOfProcessors;
 
     DWORD bufferSize = 0;
@@ -116,6 +118,7 @@ static void queryProcessorSpecs() {
         printf("\n");  // For readability between processor details
     }
     cpuCap.physicalCoreCount = physicalCoreCount;
+    return cpuCap;
 }
 
 static void queryProcessorName() {
@@ -140,10 +143,10 @@ static void queryProcessorName() {
     printf("CPU Name: %s\n", cpuName);
 }
 
-void queryProcessor_PLATFORM() {
+CPU_CAPABILITIES queryProcessor_PLATFORM() {
     std::cout << "Hello, Windows OS!" << std::endl;
     queryProcessorName();
-    queryProcessorSpecs();
+    return queryProcessorSpecs();
 }
 
 #endif
