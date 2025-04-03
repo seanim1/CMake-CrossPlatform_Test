@@ -12,6 +12,8 @@ typedef struct CPU_CAPABILITIES {
 	uint32_t L3cacheSize_Byte;
 } CPU_CAPABILITIES;
 
+//#define USE_GPU
+
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 #define FILE_AND_LINE __FILE__ ": Line " TOSTRING(__LINE__)

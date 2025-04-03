@@ -297,8 +297,10 @@ static void createSurface(SDL_Window* window) {
 //	requestingInstanceExtensions[1] = VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
 //#endif
 	bool result = SDL_Vulkan_CreateSurface(window, instance, nullptr, &surface);
-	if (result != VK_SUCCESS) {
-		printf("Failed to create Vulkan Surface! Error code: %d\n", result);
+	if (!result) {
+		std::string errorMsg = std::string("SDL_Vulkan_CreateSurface Error: ") + SDL_GetError();
+		std::cout << "SDL Error: " << errorMsg << std::endl;
+		throw std::runtime_error(errorMsg);
 	}
 }
 static void createSwapChain_Images_ImageViews() {
