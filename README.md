@@ -46,17 +46,30 @@
 ### Android
 - Drag the "include" and "src" folders in this repository into SDL GitHub repo's subdirectory: (SDL\build\org.libsdl.hello\app\jni\src). Such that you would have (SDL\build\org.libsdl.hello\app\jni\src\src) and (SDL\build\org.libsdl.hello\app\jni\src\include).
 - In Android.mk,
-   - change LOCAL_SRC_FILES with "LOCAL_SRC_FILES := $(wildcard src/*.cpp)".
-   - change LOCAL_C_INCLUDES with "LOCAL_C_INCLUDES := \
+   - change LOCAL_SRC_FILES with
+   - ```make
+     LOCAL_SRC_FILES := $(wildcard src/*.cpp)
+   - change LOCAL_C_INCLUDES with
+   - ```make
+     LOCAL_C_INCLUDES := \
       $(LOCAL_PATH)/$(SDL_PATH)/include \
-      $(LOCAL_PATH)/include"
+      $(LOCAL_PATH)/include
+- In Android.mk, add the following to compile in C++:
+   - ```make
+     APP_CPPFLAGS += -fexceptions
+     APP_STL := c++_shared
 ## Integrate Vulkan SDK
 ### Windows, Linux, MacOS
 - For Windows, Linux, MacOS, just download the SDK. [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
 - CMakeLists.txt appears to be capable of finding the library automatically. If not, you can always specify it yourself.
 ### Android
 - For Android, its SDK should have Vulkan SDK already installed, but the path to the dynamic library has to be specified.
-- In Android.mk, "VULKAN_LIB_PATH := $(NDK_ROOT)/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/aarch64-linux-android/28" *(28 here is the Android SDK API version, equivalent to Vulkan 1.1), then add "LOCAL_LDLIBS += -L$(VULKAN_LIB_PATH) -lvulkan".
+- In Android.mk, 
+- ```make
+   VULKAN_LIB_PATH := $(NDK_ROOT)/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/aarch64-linux-android/28
+- *(28 here is the Android SDK API version, equivalent to Vulkan 1.1), then add,
+- ```make
+   LOCAL_LDLIBS += -L$(VULKAN_LIB_PATH) -lvulkan
 - You might want to go to Application.mk and App/build.gradle and specify the targetSdkVersion numbers accordingly.
 ## Build:
 ### Windows (Visual Studio), Linux, MacOS (XCode)
