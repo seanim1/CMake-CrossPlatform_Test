@@ -59,7 +59,7 @@ add_executable(EXECUTABLE_TARGET_NAME ${SOURCES})
 target_link_libraries(EXECUTABLE_TARGET_NAME SDL3::SDL3 ${Vulkan_LIBRARIES})
 
 # Only add post-build commands after the target is created
-if(WIN32) 
+if(WIN32)
     # Post-build command to copy the DLL to the executable directory
     add_custom_command(TARGET EXECUTABLE_TARGET_NAME POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
