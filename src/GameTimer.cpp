@@ -21,9 +21,9 @@ void GameTimer::EndTimer() {
     int64_t cpuWorkTime_HardwareSec = (frameEndTime_HardwareSec - frameStartTime_HardwareSec);
 #if 0
     float cpuWorkTime_Sec = (float)cpuWorkTime_HardwareSec / kHardwareTimerFrequency;
-    printf("cpuWorkTime_Sec: %.8f\n", cpuWorkTime_Sec);
-    printf("DeltaTime: %.8f\n", deltaTime);
-    printf("ElapsedTime: %.8f\n", elapsedTime);
+    SDL_Log("cpuWorkTime_Sec: %.8f", cpuWorkTime_Sec);
+    SDL_Log("DeltaTime: %.8f", deltaTime);
+    SDL_Log("ElapsedTime: %.8f", elapsedTime);
 #endif
     // if we are done sooner than 16ms, then do busy waiting.
     while (cpuWorkTime_HardwareSec < kTargetFrametime_HardwareSec) {

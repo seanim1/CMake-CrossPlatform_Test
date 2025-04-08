@@ -13,7 +13,13 @@ static VkImageView swapChainImageView[PRESENT_IMG_COUNT];
 static VkSurfaceFormatKHR selectedSurfaceFormat;
 
 static void createInstance() {
-	printf("Vulkan Instance:\n");
+	uint32_t apiVersion = 0;
+	vkEnumerateInstanceVersion(&apiVersion);
+	SDL_Log("Vulkan API version supported: %d.%d.%d",
+		VK_VERSION_MAJOR(apiVersion),
+		VK_VERSION_MINOR(apiVersion),
+		VK_VERSION_PATCH(apiVersion));
+	SDL_Log("Vulkan Instance:\n");
 	VkApplicationInfo appInfo; memset(&appInfo, 0, sizeof(VkApplicationInfo));
 	VkApplicationInfo* appInfoP = &appInfo;
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -26,11 +32,11 @@ static void createInstance() {
 
 	std::vector<VkExtensionProperties> supportedInstanceExtensions(extCount);
 	vkEnumerateInstanceExtensionProperties(nullptr, &extCount, supportedInstanceExtensions.data());
-	// if (supportedInstanceExtensions == NULL) { (FILE_AND_LINE); }
-	std::cout << "Supported Instance Extensions (" << extCount << " count):\n";
+	SDL_Log("Supported Instance Extensions ( %d  count ):", extCount);
 	for (uint32_t i = 0; i < extCount; i++) {
-		std::cout << "\t" << i << ": " << supportedInstanceExtensions[i].extensionName << "\n";
+		SDL_Log("\t%d: %s", i, supportedInstanceExtensions[i].extensionName);
 	}
+
 	std::vector<const char*> requestingInstanceExtensions = {
 		VK_KHR_SURFACE_EXTENSION_NAME,
 		VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
@@ -41,12 +47,13 @@ static void createInstance() {
 #elif defined(__APPLE__)
 	requestingInstanceExtensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME); // vkCreateInstance will fail with VK_ERROR_INCOMPATIBLE_DRIVER: https://stackoverflow.com/questions/72789012/why-does-vkcreateinstance-return-vk-error-incompatible-driver-on-macos-despite
 	requestingInstanceExtensions.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
+#elif defined(__ANDROID__)
+	requestingInstanceExtensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
 #elif defined(__linux__)
 	requestingInstanceExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
 #elif defined(__linux__) && defined(USING_WAYLAND)
 	requestingInstanceExtensions.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 #endif
-
 	// Filter out unsupported extensions
 	std::vector<const char*> enabledInstanceExtensions;
 	for (const char* extension : requestingInstanceExtensions) {
@@ -54,13 +61,50 @@ static void createInstance() {
 		for (const auto& supportedExtension : supportedInstanceExtensions) {
 			if (strcmp(extension, supportedExtension.extensionName) == 0) {
 				enabledInstanceExtensions.push_back(extension);
-				std::cout << "\t Instance Extension '" << extension << "' is supported.\n";
+				SDL_Log("\t Instance Extension '%s' is supported.\n", extension);
 				found = true;
 				break;
 			}
 		}
 		if (!found) {
-			std::cout << "\t Instance Extension '" << extension << "' is NOT supported.\n";
+			SDL_Log("\t Instance Extension '%s' is NOT supported.\n", extension);
+		}
+	}
+
+	uint32_t layerCount = 0;
+	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+	std::vector<VkLayerProperties> availableLayers(layerCount);
+	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+	SDL_Log("Supported Validation Layers (%d count):", layerCount);
+	for (uint32_t i = 0; i < layerCount; i++) {
+		const VkLayerProperties& layer = availableLayers[i];
+		SDL_Log("\t%d: %s", i, layer.layerName);
+		SDL_Log("\t\tSpec Version: %u", layer.specVersion);
+		SDL_Log("\t\tImplementation Version: %u", layer.implementationVersion);
+		SDL_Log("\t\tDescription: %s", layer.description);
+	}
+
+	std::vector<const char*> requestingInstanceLayers = {
+#ifdef VALIDATION_LAYER_VULKAN
+		"VK_LAYER_KHRONOS_validation"
+#endif
+	};
+
+	std::vector<const char*> enabledInstanceLayers;
+	for (const char* layer : requestingInstanceLayers) {
+		bool found = false;
+		for (const auto& supportedLayer : availableLayers) {
+			if (strcmp(layer, supportedLayer.layerName) == 0) {
+				enabledInstanceLayers.push_back(layer);
+				SDL_Log("\t Instance Layer '%s' is supported.\n", layer);
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			SDL_Log("\t Instance Layer '%s' is NOT supported.\n", layer);
 		}
 	}
 	VkInstanceCreateInfo instanceCreateInfo; memset(&instanceCreateInfo, 0, sizeof(instanceCreateInfo));
@@ -70,23 +114,21 @@ static void createInstance() {
     // Enable portability enumeration bit
     instanceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 #endif
+	// It appears that if Validation layer isn't found, vkCreateInstance fails and apps crash.
 	instanceCreateInfo.pApplicationInfo = (VkApplicationInfo*)&appInfo;
+	instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(enabledInstanceLayers.size());
+	instanceCreateInfo.ppEnabledLayerNames = enabledInstanceLayers.data();
 	instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(enabledInstanceExtensions.size());
 	instanceCreateInfo.ppEnabledExtensionNames = enabledInstanceExtensions.data();
-	const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
-	instanceCreateInfo.ppEnabledLayerNames = (const char* const*)&validationLayerName;
-	instanceCreateInfo.enabledLayerCount = 1;
-	if (VALIDATION_LAYER_VULKAN) { // validation layer for Vulkan debugging
-		instanceCreateInfo.enabledLayerCount = 1;
-	}
+
     VkResult result = vkCreateInstance(&instanceCreateInfo, NULL, &instance);
     if (result != VK_SUCCESS) {
-        printf("Failed to create Vulkan instance! Error code: %d\n", result);
+		SDL_Log("Failed vkCreateInstance! Error code: %d\n", result);
     }
-    //VkResult resulteif = vkCreateInstance(&instanceCreateInfo, NULL, &instance);
-	//printf("vkCreateInstance %d.\n", resulteif);
+	SDL_Log("Success creating vkCreateInstance\n");
 	uint32_t gpuCount = 0;
 	vkEnumeratePhysicalDevices(instance, &gpuCount, NULL);
+	SDL_Log("vkEnumeratePhysicalDevices: GPU count: %d\n", gpuCount);
 }
 
 static void queryPhysicalDevice_selectQueueFamily() {
@@ -96,16 +138,17 @@ static void queryPhysicalDevice_selectQueueFamily() {
 	gpuCount = 1; // use the very first GPU, GPU count should be set to 1.
 	vkEnumeratePhysicalDevices(instance, &gpuCount, &physicalDevice);
 	vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
-	printf("Physical Device & QueueFamily:\n");
+	SDL_Log("Physical Device & QueueFamily:");
 	if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-		printf("\t deviceType: DISCRETE_GPU\n");
+		SDL_Log("\t deviceType: DISCRETE_GPU");
 	}
 	else if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) {
-		printf("\t deviceType: INTEGRATED_GPU\n");
+		SDL_Log("\t deviceType: INTEGRATED_GPU");
 	}
 	else {
-		printf("\t deviceType: other\n");
+		SDL_Log("\t deviceType: other");
 	}
+
 
 	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &deviceMemoryProperties);
 	VkQueueFamilyProperties* queueFamilyProperties;
@@ -115,14 +158,14 @@ static void queryPhysicalDevice_selectQueueFamily() {
 	queueFamilyProperties = (VkQueueFamilyProperties*)malloc(queueFamilyCount * sizeof(VkQueueFamilyProperties));
 	//if (queueFamilyProperties == NULL) { ErrorWindow_EVENT(FILE_AND_LINE); }
 	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilyProperties);
-	printf("\t Physical Device Queue Family (%d count):\n", queueFamilyCount);
+	SDL_Log("\t Physical Device Queue Family (%d count):", queueFamilyCount);
 	for (uint32_t i = 0; i < queueFamilyCount; i++) {
-		printf("\t\t %d: VkQueueFlags: %d, QueueCount: %d\n", i, queueFamilyProperties[i].queueFlags, queueFamilyProperties[i].queueCount);
+		SDL_Log("\t\t %d: VkQueueFlags: %d, QueueCount: %d", i, queueFamilyProperties[i].queueFlags, queueFamilyProperties[i].queueCount);
 	}
 }
 
 static void queryExtensions_createLogicalDevice_getQueue() {
-	printf("Logical Device and Queue:\n");
+	SDL_Log("Logical Device and Queue:");
 	// Get list of supported GPU extensions
 	uint32_t extCount = 0;
 	vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extCount, nullptr); // after a driver update, changed from 221 to 223, must be dynamically allocated
@@ -298,9 +341,7 @@ static void createSurface(SDL_Window* window) {
 //#endif
 	bool result = SDL_Vulkan_CreateSurface(window, instance, nullptr, &surface);
 	if (!result) {
-		std::string errorMsg = std::string("SDL_Vulkan_CreateSurface Error: ") + SDL_GetError();
-		std::cout << "SDL Error: " << errorMsg << std::endl;
-		throw std::runtime_error(errorMsg);
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_Vulkan_CreateSurface Error: %s", SDL_GetError());
 	}
 }
 static void createSwapChain_Images_ImageViews() {
@@ -319,9 +360,9 @@ static void createSwapChain_Images_ImageViews() {
 	VkSurfaceFormatKHR* surfaceFormats;
 	surfaceFormats = (VkSurfaceFormatKHR*)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
 	(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, surfaceFormats));
-	printf("Supported Physical Device Surface Formats (%d count):\n", formatCount);
+	SDL_Log("Supported Physical Device Surface Formats (%d count):", formatCount);
 	for (int i = 0; i < formatCount; i++) {
-		printf("\t%d: Format: %d, ColorSpace: %d\n", i, surfaceFormats[i].format, surfaceFormats[i].colorSpace);
+		SDL_Log("\t%d: Format: %d, ColorSpace: %d", i, surfaceFormats[i].format, surfaceFormats[i].colorSpace);
 	}
 	// We want to get a format that best suits our needs, but the first format is okay if they aren't available
 	VkFormat desiredSurfaceImageFormats[] = {
@@ -344,13 +385,13 @@ static void createSwapChain_Images_ImageViews() {
 	// Switch-statement is faster than if-statement via Jump Table, make sure cases are contiguous in value (0, 1, 2...)
 	switch (foundDesiredSurfaceImageFormat) {
 	case 0:
-		printf("\tSelected Surface Image Format: VK_FORMAT_B8G8R8A8_UNORM\n");
+		SDL_Log("\tSelected Surface Image Format: VK_FORMAT_B8G8R8A8_UNORM");
 		break;
 	case 1:
-		printf("\tSelected Surface Image Format: VK_FORMAT_R8G8B8A8_UNORM\n");
+		SDL_Log("\tSelected Surface Image Format: VK_FORMAT_R8G8B8A8_UNORM");
 		break;
 	case 2:
-		printf("\tSelected Surface Image Format: VK_FORMAT_A8B8G8R8_UNORM_PACK32\n");
+		SDL_Log("\tSelected Surface Image Format: VK_FORMAT_A8B8G8R8_UNORM_PACK32");
 		break;
 	}
 	free(surfaceFormats);
@@ -423,20 +464,21 @@ static void createSwapChain_Images_ImageViews() {
 		colorAttachmentView.subresourceRange.layerCount = 1;
 		(vkCreateImageView(logicalDevice, &colorAttachmentView, NULL, &swapChainImageView[i]));
 	}
-	printf("SwapChain Images & ImageViews:\n");
-	printf("\t Swapchain ImageSize: %u x %u\n", swapchainExtent.width, swapchainExtent.height);
-	printf("\t Swapchain ImageCount: %d\n", swapchainImageCount);
+	SDL_Log("SwapChain Images & ImageViews:");
+	SDL_Log("\t Swapchain ImageSize: %u x %u", swapchainExtent.width, swapchainExtent.height);
+	SDL_Log("\t Swapchain ImageCount: %d", swapchainImageCount);
+
 	if (swapchainPresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
-		printf("\t Swapchain Present Mode: IMMEDIATE\n");
+		SDL_Log("\t Swapchain Present Mode: IMMEDIATE");
 	}
 	else if (swapchainPresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-		printf("\t Swapchain Present Mode: MAILBOX\n");
+		SDL_Log("\t Swapchain Present Mode: MAILBOX");
 	}
 	else if (swapchainPresentMode == VK_PRESENT_MODE_FIFO_KHR) {
-		printf("\t Swapchain Present Mode: FIFO\n");
+		SDL_Log("\t Swapchain Present Mode: FIFO");
 	}
 	else {
-		printf("\t Swapchain Present Mode: %d\n", swapchainPresentMode);
+		SDL_Log("\t Swapchain Present Mode: %d", swapchainPresentMode);
 	}
 }
 
@@ -444,6 +486,6 @@ void initVulkan(SDL_Window* window) {
 	createInstance();
 	queryPhysicalDevice_selectQueueFamily();
 	queryExtensions_createLogicalDevice_getQueue();
-	createSurface(window);
-	createSwapChain_Images_ImageViews();
+	//createSurface(window);
+	//createSwapChain_Images_ImageViews();
 }

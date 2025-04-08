@@ -6,57 +6,52 @@ GameInput::GameInput() {
     SDL_memset(mouseButtons, 0, sizeof(mouseButtons));
 }
 
+void GameInput::ProcessEvent(const SDL_Event& event) {
+    switch (event.type) {
+    case SDL_EVENT_KEY_DOWN:
+        keys[event.key.scancode] = true;
+        SDL_Log("Key pressed: %s", SDL_GetScancodeName(event.key.scancode));
+        break;
+
+    case SDL_EVENT_KEY_UP:
+        keys[event.key.scancode] = false;
+        SDL_Log("Key released: %s", SDL_GetScancodeName(event.key.scancode));
+        break;
+
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+        if (event.button.button < 5) {
+            mouseButtons[event.button.button] = true;
+        }
+        SDL_Log("Mouse button pressed: %d", static_cast<int>(event.button.button));
+        break;
+
+    case SDL_EVENT_MOUSE_BUTTON_UP:
+        if (event.button.button < 5) {
+            mouseButtons[event.button.button] = false;
+        }
+        SDL_Log("Mouse button released: %d", static_cast<int>(event.button.button));
+        break;
+
+    case SDL_EVENT_MOUSE_MOTION:
+        mouseCoord = glm::ivec2(event.motion.x, event.motion.y);
+        SDL_Log("Mouse Positions: %d, %d", mouseCoord.x, mouseCoord.y);
+        break;
+
+    case SDL_EVENT_MOUSE_WHEEL:
+        mouseWheel = event.wheel.y;
+        SDL_Log("Mouse Wheel: %d", mouseWheel);
+        break;
+    }
+}
+
 void GameInput::Update() {
-    SDL_Event event;
     mouseWheel = 0; // Reset wheel delta every frame
 
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-        case SDL_EVENT_QUIT:
-            std::cout << "Quit event detected!\n";
-            break;
-
-        case SDL_EVENT_KEY_DOWN:
-            keys[event.key.scancode] = true;
-            std::cout << "Key pressed: " << SDL_GetScancodeName(event.key.scancode) << std::endl;
-            break;
-
-        case SDL_EVENT_KEY_UP:
-            keys[event.key.scancode] = false;
-            std::cout << "Key released: " << SDL_GetScancodeName(event.key.scancode) << std::endl;
-            break;
-
-        case SDL_EVENT_MOUSE_BUTTON_DOWN:
-            if (event.button.button < 5) {
-                mouseButtons[event.button.button] = true;
-            }
-            std::cout << "Mouse button pressed: " << (int)event.button.button << std::endl;
-            break;
-
-        case SDL_EVENT_MOUSE_BUTTON_UP:
-            if (event.button.button < 5) {
-                mouseButtons[event.button.button] = false;
-            }
-            std::cout << "Mouse button released: " << (int)event.button.button << std::endl;
-            break;
-
-        case SDL_EVENT_MOUSE_MOTION:
-            mouseCoord = glm::ivec2(event.motion.x, event.motion.y);
-            std::cout << "Mouse Postions: " << mouseCoord.x << ", " << mouseCoord.y << std::endl;
-            break;
-
-        case SDL_EVENT_MOUSE_WHEEL:
-            mouseWheel = event.wheel.y; // Positive = up, Negative = down
-            std::cout << "Mouse Wheel: " << mouseWheel << std::endl;
-            break;
-        }
-    }
-
     // Example of checking if a specific key is held down
-    if (keys[SDL_SCANCODE_W]) std::cout << "Holding W" << std::endl;
-    if (keys[SDL_SCANCODE_A]) std::cout << "Holding A" << std::endl;
-    if (keys[SDL_SCANCODE_S]) std::cout << "Holding S" << std::endl;
-    if (keys[SDL_SCANCODE_D]) std::cout << "Holding D" << std::endl;
+    if (keys[SDL_SCANCODE_W]) SDL_Log("Holding W");
+    if (keys[SDL_SCANCODE_A]) SDL_Log("Holding A");
+    if (keys[SDL_SCANCODE_S]) SDL_Log("Holding S");
+    if (keys[SDL_SCANCODE_D]) SDL_Log("Holding D");
 }
 
 bool GameInput::IsKeyPressed(SDL_Scancode key) const {

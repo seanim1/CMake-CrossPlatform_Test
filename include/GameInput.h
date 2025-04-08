@@ -16,7 +16,7 @@ private:
 public:
     GameInput();
     void Update();
-
+    void ProcessEvent(const SDL_Event& event);
     bool IsKeyPressed(SDL_Scancode key) const;
     bool IsMousePressed(Uint8 button) const;
     glm::ivec2 GetMousePosition() const;

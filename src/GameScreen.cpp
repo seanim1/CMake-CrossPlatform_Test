@@ -32,9 +32,7 @@ GameScreen::GameScreen(int width, int height, SDL_Renderer* renderer)
         width, height
     );
     if (texture == NULL) {
-        const char* errorMsg = SDL_GetError();
-        printf("SDL Error: %s\n", errorMsg);
-        throw std::runtime_error(std::string("SDL_CreateTexture Error: ") + errorMsg);
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_CreateTexture Error: %s", SDL_GetError());
     }
 #endif
 }

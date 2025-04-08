@@ -7,6 +7,8 @@
 #if defined(_WIN32)
 #include <windows.h>
 #include <vulkan/vulkan_win32.h>
+#elif defined(__ANDROID__)
+#include <vulkan/vulkan_android.h>
 #elif defined(__linux__)
 #include <xcb/xcb.h>
 #include <vulkan/vulkan_xcb.h>
@@ -21,10 +23,5 @@
 #endif
 #define GAME_NAME "Cross_Platform_Demo"
 #define PRESENT_IMG_COUNT 2
-#ifdef _DEBUG
-#define VALIDATION_LAYER_VULKAN 1
-#else
-#define VALIDATION_LAYER_VULKAN 0
-#endif
+#define VALIDATION_LAYER_VULKAN
 void initVulkan(SDL_Window* window);
-
