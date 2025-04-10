@@ -1,9 +1,11 @@
 #pragma once
-#include <vector>
 #include "Global.h"
-#include <vulkan/vulkan.h>
+#include <vector>
 #include <SDL3/SDL.h>
+
+#ifdef USE_GPU
 #include <SDL3/SDL_vulkan.h>
+#include <vulkan/vulkan.h>
 #if defined(_WIN32)
 #include <windows.h>
 #include <vulkan/vulkan_win32.h>
@@ -17,10 +19,11 @@
 #include <vulkan/vulkan_wayland.h>
 #elif defined(__APPLE__)
 #define VK_ENABLE_BETA_EXTENSIONS
-
 #include <vulkan/vulkan_metal.h>
 #include <vulkan/vulkan_beta.h>
 #endif
+#endif
+
 #define GAME_NAME "Cross_Platform_Demo"
 #define PRESENT_IMG_COUNT 2
 #define VALIDATION_LAYER_VULKAN
