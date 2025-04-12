@@ -1,3 +1,4 @@
+#ifdef USE_GPU
 #include "Vulkan_gpu.h"
 static VkInstance instance;
 static VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
@@ -489,3 +490,4 @@ void initVulkan(SDL_Window* window) {
 	//createSurface(window);
 	//createSwapChain_Images_ImageViews();
 }
+#endif
