@@ -51,6 +51,7 @@
    - as for "SDL.xcodeproj." "link by reference"
 ## Integrate our source and headers
 ### Windows, Linux, MacOS
+- Handled by CMake
 ### Android
 - Drag the "include" and "src" folders in this repository into SDL GitHub repo's subdirectory: (SDL\build\org.libsdl.hello\app\jni\src). Such that you would have (SDL\build\org.libsdl.hello\app\jni\src\src) and (SDL\build\org.libsdl.hello\app\jni\src\include).
 - In Android.mk,
