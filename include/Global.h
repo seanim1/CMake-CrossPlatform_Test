@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 
-//#define USE_GPU
+#define USE_GPU
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)

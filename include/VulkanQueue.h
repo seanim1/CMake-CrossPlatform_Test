@@ -17,14 +17,21 @@
 #elif defined(__linux__) && defined(USING_WAYLAND)
 #include <wayland-client.h>
 #include <vulkan/vulkan_wayland.h>
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) // For both MacOS and iOS
 #define VK_ENABLE_BETA_EXTENSIONS
 #include <vulkan/vulkan_metal.h>
 #include <vulkan/vulkan_beta.h>
 #endif
 #endif
 
-#define GAME_NAME "Cross_Platform_Demo"
-#define PRESENT_IMG_COUNT 2
-#define VALIDATION_LAYER_VULKAN
-void initVulkan(SDL_Window* window);
+class VulkanQueue {
+private:
+
+public:
+	/* Queue count will always be 1 for now*/
+	VulkanQueue(uint32_t queueFamilyIndex, uint32_t queueCount);
+	VkQueue queue;
+	uint32_t queueFamilyIndex;
+	/* get queue from the logical device */
+	void initQueue(VkDevice logicalDevice);
+};
