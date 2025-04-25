@@ -1,4 +1,5 @@
 # SDL3 & Vulkan skeleton for Windows, Linux, MacOS, Android, iOS
+![Preview Image](Screenshot.png)
 - SDL3: begin a SDL3 window, handle inputs, start CPU rendering game loop.
 - Vulkan: Query extensions. Create a VkSurface.
 ## Integrate SDL3
