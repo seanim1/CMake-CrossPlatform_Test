@@ -1,6 +1,10 @@
 #pragma once
 #include "Global.h"
+#include "GeometryBase.h"
+#include <vector>
+#include <fstream>
 #include <SDL3/SDL.h>
+#include <glm/glm.hpp>
 
 #ifdef USE_GPU
 #include <SDL3/SDL_vulkan.h>
@@ -23,10 +27,14 @@
 #endif
 #endif
 
-class VulkanDevice {
+class VulkanSpecializationConstant {
 private:
-
 public:
-	VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, std::vector<const char*>* requestedDeviceExtensions);
-	VkDevice logicalDevice;
+	VulkanSpecializationConstant::VulkanSpecializationConstant(
+		int Screen_Width,
+		int Screen_Heigt
+	);
+	static constexpr int specialization_constant_count = 2;  // static, same across all instances
+	VkSpecializationMapEntry specializationMapEntries[specialization_constant_count];
+	VkSpecializationInfo specializationInfo;
 };

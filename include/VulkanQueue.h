@@ -2,6 +2,8 @@
 #include "Global.h"
 #include <vector>
 #include <SDL3/SDL.h>
+#include "VulkanSynchronization.h"
+#include "VulkanCommand.h"
 
 #ifdef USE_GPU
 #include <SDL3/SDL_vulkan.h>
@@ -28,10 +30,15 @@ class VulkanQueue {
 private:
 
 public:
-	/* Queue count will always be 1 for now*/
+	/* Queue count will always be 1 for now */
 	VulkanQueue(uint32_t queueFamilyIndex, uint32_t queueCount);
+	static unsigned int frameIndex; // SwapChain Synchronization
+
 	VkQueue queue;
 	uint32_t queueFamilyIndex;
 	/* get queue from the logical device */
 	void initQueue(VkDevice logicalDevice);
+	void drawFrame(VkDevice logicalDevice, VulkanSynchronization* syncX, 
+		VkSwapchainKHR swapChain, VulkanCommand* cmdX);
+
 };

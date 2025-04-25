@@ -1,4 +1,5 @@
 #pragma once
+#include "GameCamera.h"
 #include <iostream>
 
 #include <glm/glm.hpp>
@@ -15,7 +16,7 @@ private:
     int mouseWheel = 0;
 public:
     GameInput();
-    void Update();
+    void Update(GameCamera* gCamera);
     void ProcessEvent(const SDL_Event& event);
     bool IsKeyPressed(SDL_Scancode key) const;
     bool IsMousePressed(Uint8 button) const;

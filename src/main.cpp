@@ -3,8 +3,11 @@
 #include "Global.h"
 #include "GameWindow.h"
 #include "GameScreen.h"
+#include "GameCamera.h"
 #include "GameInput.h"
 #include "GameTimer.h"
+
+#include "GeometryBox.h"
 
 #include <glm/glm.hpp>
 #include <SDL3/SDL.h>
@@ -20,6 +23,11 @@
 #include "VulkanDevice.h"
 #include "VulkanQueue.h"
 #include "VulkanSwapChain.h"
+#include "VulkanCommand.h"
+#include "VulkanSynchronization.h"
+#include "VulkanDescBufferUniform.h"
+#include "VulkanUberDescriptorSet.h"
+#include "VulkanGraphicsPipeline.h"
 
 #include <vulkan/vulkan.h>
 #if defined(_WIN32)
@@ -42,14 +50,27 @@
 
 static GameWindow* gWindow = nullptr;
 static GameScreen* gScreen = nullptr;
+static GameCamera* gCamera = nullptr;
 static GameInput* gInput = nullptr;
 static GameTimer* gTimer = nullptr;
-
+static VulkanQueue* queueX = nullptr;
+static VulkanDevice* deviceX = nullptr;
+static VulkanSynchronization* syncX = nullptr;
+static VulkanCommand* cmdX = nullptr;
+static VulkanSwapChain* swapChainX = nullptr;
+static std::vector<VulkanDesc*> descriptorList;
+struct CameraMatrices {
+	glm::mat4 view;
+	glm::mat4 proj;
+	float elapsedTime;
+};
+static CameraMatrices cam;
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
     gWindow = new GameWindow(1280, 720, "Cross-Platform GUI");
     gScreen = new GameScreen(gWindow->dimension.x / 10, gWindow->dimension.y / 10, gWindow->renderer);
-    gInput = new GameInput();
+	gCamera = new GameCamera(60.0f, gWindow->dimension.x / static_cast<float>(gWindow->dimension.y), 0.1f, 100.0f);
+	gInput = new GameInput();
     gTimer = new GameTimer();
 
 #ifdef USE_GPU
@@ -83,6 +104,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	VK_KHR_16BIT_STORAGE_EXTENSION_NAME,
 	VK_KHR_8BIT_STORAGE_EXTENSION_NAME,
 	VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_EXTENSION_NAME,
+	VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
 	VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME, // for shader printf: GL_EXT_debug_printf
 	VK_KHR_SHADER_ATOMIC_INT64_EXTENSION_NAME,
 	VK_EXT_SHADER_ATOMIC_FLOAT_EXTENSION_NAME, // not fully supported on RX6600 (imageAtomicAdd not supported)
@@ -95,11 +117,24 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	VulkanInstance* instanceX = new VulkanInstance(&requestingInstanceExtensions, &requestingInstanceLayers);
 	VulkanPhysicalDevice* physicalDeviceX = new VulkanPhysicalDevice(instanceX->instance);
 
-	VulkanQueue* queueX = new VulkanQueue(0, 1);
-	VulkanDevice* deviceX = new VulkanDevice(physicalDeviceX->physicalDevice, physicalDeviceX->computeQueueFamilyIndex, &requestedDeviceExtensions);
+	queueX = new VulkanQueue(0, 1);
+	deviceX = new VulkanDevice(physicalDeviceX->physicalDevice, physicalDeviceX->computeQueueFamilyIndex, &requestedDeviceExtensions);
 	queueX->initQueue(deviceX->logicalDevice);
 	instanceX->initSurface(gWindow->window);
-	VulkanSwapChain* swapChainX = new VulkanSwapChain(physicalDeviceX->physicalDevice, instanceX->surface, deviceX->logicalDevice);
+	swapChainX = new VulkanSwapChain(physicalDeviceX->physicalDevice, instanceX->surface, deviceX->logicalDevice);
+	cmdX = new VulkanCommand(deviceX->logicalDevice, queueX->queueFamilyIndex);
+	syncX = new VulkanSynchronization(deviceX->logicalDevice);
+	Box* box_01 = new Box(2.0f, 2.0f, 2.0f);
+
+	descriptorList.push_back( new VulkanDescBufferUniform(&cam, sizeof(cam)) );
+	((VulkanDescBufferUniform*)descriptorList[0])->allocateUniformBuffer(deviceX->logicalDevice, physicalDeviceX->physicalDevice);
+	//descBufferUniformX
+	VulkanUberDescriptorSet* descriptorX = new VulkanUberDescriptorSet(deviceX->logicalDevice, descriptorList);
+	VulkanGraphicsPipeline* graphicsPipelineX = new VulkanGraphicsPipeline(deviceX->logicalDevice, 
+		swapChainX->swapChainExtent, swapChainX->selectedSurfaceFormat, 
+		descriptorX->uberPipelineLayout, box_01);
+	cmdX->buildCommandBuffers(swapChainX, descriptorX->uberPipelineLayout,
+		descriptorX->uberDescSet, graphicsPipelineX->graphicsPipeline, box_01);
 
 #endif
 
@@ -118,10 +153,15 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
 /* This function runs once per frame. */
 SDL_AppResult SDL_AppIterate(void* appstate) {
     gTimer->StartTimer();
-    gInput->Update();
+    gInput->Update(gCamera);
 
 #ifdef USE_GPU
+	cam.view = gCamera->GetViewMatrix();
+	cam.proj = gCamera->GetProjectionMatrix();
+	cam.elapsedTime = gTimer->elapsedTime;
+	((VulkanDescBufferUniform*)descriptorList[0])->update();
     // Vulkan rendering goes here
+	queueX->drawFrame(deviceX->logicalDevice, syncX, swapChainX->swapChain, cmdX);
 #else
     gScreen->Update(gTimer->elapsedTime, gWindow->renderer);
 #endif

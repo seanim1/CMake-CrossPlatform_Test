@@ -34,4 +34,5 @@ public:
 	VkImage swapChainImages[PRESENT_IMG_COUNT];
 	VkImageView swapChainImageView[PRESENT_IMG_COUNT];
 	VkSurfaceFormatKHR selectedSurfaceFormat;
+	VkExtent2D swapChainExtent;
 };

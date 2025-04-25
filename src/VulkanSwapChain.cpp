@@ -5,7 +5,7 @@ VulkanSwapChain::VulkanSwapChain(VkPhysicalDevice physicalDevice, VkSurfaceKHR s
 	//	1. Get physical device surface properties and formats: Surface Capabilities (min_C/max_C number of images in swap chain, min_C/max_C width and height of images)
 	VkSurfaceCapabilitiesKHR surfCaps;
 	(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfCaps));
-	VkExtent2D swapchainExtent = surfCaps.currentExtent; // Swapchain image size = Extent
+	swapChainExtent = surfCaps.currentExtent; // Swapchain image size = Extent
 	// Determine the number of images
 	uint32_t swapchainImageCount = surfCaps.minImageCount;
 	if ((surfCaps.maxImageCount > 0) && (swapchainImageCount > surfCaps.maxImageCount)) {
@@ -88,7 +88,7 @@ VulkanSwapChain::VulkanSwapChain(VkPhysicalDevice physicalDevice, VkSurfaceKHR s
 	swapchainCI.minImageCount = swapchainImageCount;
 	swapchainCI.imageFormat = selectedSurfaceFormat.format;
 	swapchainCI.imageColorSpace = selectedSurfaceFormat.colorSpace;
-	swapchainCI.imageExtent = swapchainExtent;
+	swapchainCI.imageExtent = swapChainExtent;
 	swapchainCI.preTransform = surfCaps.currentTransform;
 	swapchainCI.imageArrayLayers = 1; // for multiview/stereo surface, otherwise 1
 	swapchainCI.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; // image resource is exclusive to a single queue family
@@ -124,8 +124,8 @@ VulkanSwapChain::VulkanSwapChain(VkPhysicalDevice physicalDevice, VkSurfaceKHR s
 		colorAttachmentView.subresourceRange.layerCount = 1;
 		(vkCreateImageView(logicalDevice, &colorAttachmentView, NULL, &swapChainImageView[i]));
 	}
-	SDL_Log("SwapChain Images & ImageViews:");
-	SDL_Log("\t Swapchain ImageSize: %u x %u", swapchainExtent.width, swapchainExtent.height);
+	SDL_Log("<SwapChain>:");
+	SDL_Log("\t Swapchain ImageSize: %u x %u", swapChainExtent.width, swapChainExtent.height);
 	SDL_Log("\t Swapchain ImageCount: %d", swapchainImageCount);
 
 	if (swapchainPresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
@@ -140,4 +140,5 @@ VulkanSwapChain::VulkanSwapChain(VkPhysicalDevice physicalDevice, VkSurfaceKHR s
 	else {
 		SDL_Log("\t Swapchain Present Mode: %d", swapchainPresentMode);
 	}
+
 }

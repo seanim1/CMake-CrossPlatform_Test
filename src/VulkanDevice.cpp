@@ -64,6 +64,11 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamily
 	float16Int8Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES_KHR;
 	float16Int8Features.shaderFloat16 = VK_TRUE; // Enable Float16 support
 	float16Int8Features.shaderInt8 = VK_TRUE;    // Enable Int8 support
+	
+	// >> Enable the Dynamic Rendering feature
+	VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
+	dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+	dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
 
 	VkPhysicalDeviceShaderAtomicFloatFeaturesEXT atomicFloatFeatures; memset(&atomicFloatFeatures, 0, sizeof(VkPhysicalDeviceShaderAtomicFloatFeaturesEXT));
 	atomicFloatFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT;
@@ -92,7 +97,8 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamily
 	synchronization2Features.pNext = &storage8bitFeatures;
 	storage8bitFeatures.pNext = &storage16bitFeatures;
 	storage16bitFeatures.pNext = &float16Int8Features;
-	float16Int8Features.pNext = &atomicFloatFeatures;
+	float16Int8Features.pNext = &dynamicRenderingFeatures;
+	dynamicRenderingFeatures.pNext = &atomicFloatFeatures;
 	//atomicFloatFeatures.pNext = &atomicInt64Features;
 	//atomicInt64Features.pNext = &imageAtomicInt64Features;
 

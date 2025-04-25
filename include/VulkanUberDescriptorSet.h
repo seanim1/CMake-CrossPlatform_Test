@@ -1,6 +1,7 @@
 #pragma once
 #include "Global.h"
 #include <SDL3/SDL.h>
+#include "VulkanDescBuffer.h"
 
 #ifdef USE_GPU
 #include <SDL3/SDL_vulkan.h>
@@ -23,10 +24,14 @@
 #endif
 #endif
 
-class VulkanDevice {
+class VulkanUberDescriptorSet {
 private:
 
 public:
-	VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, std::vector<const char*>* requestedDeviceExtensions);
-	VkDevice logicalDevice;
+	VulkanUberDescriptorSet::VulkanUberDescriptorSet(VkDevice logicalDevice, std::vector<VulkanDesc*>& descriptorList);
+	VkDescriptorSetLayout uberSetLayout;
+	VkDescriptorPool descPool;
+	VkDescriptorSet uberDescSet;
+	/* information about where to expect resource bindings, used for Pipeline creation */
+	VkPipelineLayout uberPipelineLayout;
 };
