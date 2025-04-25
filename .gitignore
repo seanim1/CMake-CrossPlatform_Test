@@ -6,10 +6,12 @@
 !FindGLFW.cmake
 !src/
 !include/
+!shaders/
 
 # Allow contents inside src and include
 !src/**
 !include/**
+!shaders/**
 
 # don't ignore the .gitignore!
 !.gitignore
