@@ -39,13 +39,6 @@ GameWindow::GameWindow(int width, int height, const char* title)
     }
     SDL_Log("SDL: Vulkan loader and an ICD have been found");
     window = SDL_CreateWindow(title, width, height, SDL_WINDOW_VULKAN);
-    // Get required Vulkan extensions
-    uint32_t extensionCount = 0;
-    const char* const* extensions = SDL_Vulkan_GetInstanceExtensions(&extensionCount);
-    SDL_Log("SDL3 Vulkan instance extensions required:");
-    for (uint32_t i = 0; i < extensionCount; i++) {
-        SDL_Log("- %s", extensions[i]);
-    }
 #else
 #ifdef __ANDROID__  // Android always goes for Full Screen
     window = SDL_CreateWindow(title, width, height, SDL_WINDOW_FULLSCREEN); // SDL_WINDOW_FULLSCREEN is necessary to hide the HUDs on Android

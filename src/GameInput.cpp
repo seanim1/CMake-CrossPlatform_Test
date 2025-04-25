@@ -44,7 +44,7 @@ void GameInput::ProcessEvent(const SDL_Event& event) {
     }
 }
 
-void GameInput::Update() {
+void GameInput::Update(GameCamera* gCamera) {
     mouseWheel = 0; // Reset wheel delta every frame
 
     // Example of checking if a specific key is held down

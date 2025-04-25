@@ -1,6 +1,6 @@
 # SDL3 & Vulkan skeleton for Windows, Linux, MacOS, Android, iOS
-- SDL3: begin a SDL3 window, handle inputs, start CPU rendering game loop.
-- Vulkan: Query extensions. Create a VkSurface.
+![Preview Image](Screenshot.png)
+- Renders rotating triangle in real-time on GPU.
 ## Integrate SDL3
 ### Windows
 - [Download SDL](https://github.com/libsdl-org/SDL/releases)

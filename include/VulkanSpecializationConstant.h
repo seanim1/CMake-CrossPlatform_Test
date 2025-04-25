@@ -1,7 +1,10 @@
 #pragma once
 #include "Global.h"
+#include "GeometryBase.h"
 #include <vector>
+#include <fstream>
 #include <SDL3/SDL.h>
+#include <glm/glm.hpp>
 
 #ifdef USE_GPU
 #include <SDL3/SDL_vulkan.h>
@@ -17,14 +20,21 @@
 #elif defined(__linux__) && defined(USING_WAYLAND)
 #include <wayland-client.h>
 #include <vulkan/vulkan_wayland.h>
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) // For both MacOS and iOS
 #define VK_ENABLE_BETA_EXTENSIONS
 #include <vulkan/vulkan_metal.h>
 #include <vulkan/vulkan_beta.h>
 #endif
 #endif
 
-#define GAME_NAME "Cross_Platform_Demo"
-#define PRESENT_IMG_COUNT 2
-#define VALIDATION_LAYER_VULKAN
-void initVulkan(SDL_Window* window);
+class VulkanSpecializationConstant {
+private:
+public:
+	VulkanSpecializationConstant::VulkanSpecializationConstant(
+		int Screen_Width,
+		int Screen_Heigt
+	);
+	static constexpr int specialization_constant_count = 2;  // static, same across all instances
+	VkSpecializationMapEntry specializationMapEntries[specialization_constant_count];
+	VkSpecializationInfo specializationInfo;
+};

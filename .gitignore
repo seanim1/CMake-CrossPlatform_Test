@@ -2,14 +2,17 @@
 *
  
 # Allow the CMakeLists.txt file and src/include directories
+!Screenshot.png
 !CMakeLists.txt
 !FindGLFW.cmake
 !src/
 !include/
+!shaders/
 
 # Allow contents inside src and include
 !src/**
 !include/**
+!shaders/**
 
 # don't ignore the .gitignore!
 !.gitignore
