@@ -25,6 +25,7 @@
 #include "VulkanSwapChain.h"
 #include "VulkanCommand.h"
 #include "VulkanSynchronization.h"
+#include "VulkanSpecializationConstant.h"
 #include "VulkanDescBufferUniform.h"
 #include "VulkanUberDescriptorSet.h"
 #include "VulkanGraphicsPipeline.h"
@@ -128,16 +129,19 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 
 	descriptorList.push_back( new VulkanDescBufferUniform(&cam, sizeof(cam)) );
 	((VulkanDescBufferUniform*)descriptorList[0])->allocateUniformBuffer(deviceX->logicalDevice, physicalDeviceX->physicalDevice);
-	//descBufferUniformX
+	VulkanSpecializationConstant* specialConstantX = new VulkanSpecializationConstant(
+		gScreen->dimension.x,
+		gScreen->dimension.y
+	);
 	VulkanUberDescriptorSet* descriptorX = new VulkanUberDescriptorSet(deviceX->logicalDevice, descriptorList);
 	VulkanGraphicsPipeline* graphicsPipelineX = new VulkanGraphicsPipeline(deviceX->logicalDevice, 
 		swapChainX->swapChainExtent, swapChainX->selectedSurfaceFormat, 
-		descriptorX->uberPipelineLayout, box_01);
+		descriptorX->uberPipelineLayout, box_01, 
+		specialConstantX->specializationInfo);
 	cmdX->buildCommandBuffers(swapChainX, descriptorX->uberPipelineLayout,
 		descriptorX->uberDescSet, graphicsPipelineX->graphicsPipeline, box_01);
 
 #endif
-
     return SDL_APP_CONTINUE; // SDL_APP_FAILURE to indicate failure
 }
 

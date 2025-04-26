@@ -1,5 +1,8 @@
 #version 450
 
+layout(constant_id = 0) const int SCREEN_WIDTH = 1;
+layout(constant_id = 1) const int SCREEN_HEIGT = 1;
+
 layout(location = 0) out vec3 fragColor;
 
 vec2 positions[3] = vec2[](
@@ -26,7 +29,7 @@ void main() {
         cos(angle), -sin(angle),
         sin(angle),  cos(angle)
     );
-    vec2 aspectRatio = vec2(16./9., 1.);
+    vec2 aspectRatio = vec2(SCREEN_WIDTH / float(SCREEN_HEIGT), 1.);
     vec2 rotatedPos = rotation * positions[gl_VertexIndex];
     gl_Position = vec4(rotatedPos / aspectRatio, 0.0, 1.0);
     fragColor = colors[gl_VertexIndex];

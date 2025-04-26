@@ -26,22 +26,14 @@
 #include <vulkan/vulkan_beta.h>
 #endif
 #endif
-typedef struct SpecializationConstantData {
-	int Screen_Width;
-	int Screen_Heigt;
-} SpecializationConstantData;
 class VulkanGraphicsPipeline {
 private:
 	VkShaderModule VulkanGraphicsPipeline::createShaderModule(const std::vector<char>& code, VkDevice logicalDevice);
 	std::vector<char> VulkanGraphicsPipeline::readFile(const std::string& filename);
-	void initSpecializationConstant();
 public:
 	VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice logicalDevice, 
 		VkExtent2D swapChainExtent, VkSurfaceFormatKHR selectedSurfaceFormat, 
-		VkPipelineLayout uberPipelineLayout, Geometry* geometry);
+		VkPipelineLayout uberPipelineLayout, Geometry* geometry,
+		VkSpecializationInfo specializationInfo);
 	VkPipeline graphicsPipeline;
-	static constexpr int specialization_constant_count = (sizeof(SpecializationConstantData) / 4);  // static, same across all instances
-	VkSpecializationMapEntry specializationMapEntries[specialization_constant_count];
-	VkSpecializationInfo specializationInfo;
-	SpecializationConstantData gpuConstantData;
 };
