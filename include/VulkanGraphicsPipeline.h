@@ -28,10 +28,10 @@
 #endif
 class VulkanGraphicsPipeline {
 private:
-	VkShaderModule VulkanGraphicsPipeline::createShaderModule(const std::vector<char>& code, VkDevice logicalDevice);
-	std::vector<char> VulkanGraphicsPipeline::readFile(const std::string& filename);
+	VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice logicalDevice);
+	std::vector<char> readFile(const std::string& filename);
 public:
-	VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice logicalDevice, 
+	VulkanGraphicsPipeline(VkDevice logicalDevice, 
 		VkExtent2D swapChainExtent, VkSurfaceFormatKHR selectedSurfaceFormat, 
 		VkPipelineLayout uberPipelineLayout, Geometry* geometry,
 		VkSpecializationInfo specializationInfo);

@@ -67,7 +67,7 @@ const void* Box::getVertexData() const {
 }
 
 uint32_t Box::getVertexCount() const {
-    return vertices.size();
+    return (uint32_t) vertices.size();
 }
 
 uint16_t Box::getVertexStride() const {
@@ -79,7 +79,7 @@ const uint32_t* Box::getIndexData() const {
 }
 
 uint32_t Box::getIndexCount() const {
-    return indices.size();
+    return (uint32_t) indices.size();
 }
 
 const std::vector<VkVertexInputAttributeDescription>& Box::getAttributeDescriptions() const {

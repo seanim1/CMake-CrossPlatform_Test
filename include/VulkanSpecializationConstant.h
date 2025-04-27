@@ -35,7 +35,7 @@ typedef struct GpuConstantData {
 class VulkanSpecializationConstant {
 private:
 public:
-	VulkanSpecializationConstant::VulkanSpecializationConstant(
+	VulkanSpecializationConstant(
 		int Screen_Width,
 		int Screen_Heigt
 	);

@@ -29,7 +29,7 @@ class VulkanSynchronization {
 private:
 
 public:
-	VulkanSynchronization::VulkanSynchronization(VkDevice logicalDevice);
+	VulkanSynchronization(VkDevice logicalDevice);
 	VkFence inFlightFence[MAX_FRAMES_IN_FLIGHT]; // for waiting on CPU until GPU is done
 	VkSemaphore presentFinImgAvailSem[MAX_FRAMES_IN_FLIGHT]; // GPU to GPU sync
 	VkSemaphore renderFinishedSem[MAX_FRAMES_IN_FLIGHT];

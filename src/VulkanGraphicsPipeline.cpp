@@ -24,7 +24,7 @@ VkShaderModule VulkanGraphicsPipeline::createShaderModule(const std::vector<char
 	createInfo.codeSize = code.size();
 	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-	VkShaderModule shaderModule;
+    VkShaderModule shaderModule{};
 	if (vkCreateShaderModule(logicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create shader module!");
 	}
@@ -37,8 +37,8 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice logicalDevice,
 	VkSpecializationInfo specializationInfo)
 {
 
-	auto vertShaderCode = readFile("../shaders/box.vert.spv");
-	auto fragShaderCode = readFile("../shaders/box.frag.spv");
+	auto vertShaderCode = readFile("/Users/sean/Documents/GitHub/CMake-CrossPlatform_Test/shaders/box.vert.spv");
+	auto fragShaderCode = readFile("/Users/sean/Documents/GitHub/CMake-CrossPlatform_Test/shaders/box.frag.spv");
 
 	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode, logicalDevice);
 	VkShaderModule fragShaderModule = createShaderModule(fragShaderCode, logicalDevice);
@@ -62,12 +62,12 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice logicalDevice,
 	// vertexInput - inputAssembly - Vertex Shader - Tessellation - Viewport - Raster - Multisample - DepthStencil (earlyFragTest) - Fragment Shader - ColorBlend (color attachment stage)
 
 	/* Interleaved Vertex attribute setup: [Pos, Normal, Pos, Normal, Pos, Normal] */
-	VkPipelineVertexInputStateCreateInfo vertexInputState = {};
+	VkPipelineVertexInputStateCreateInfo vertexInputState{};
 	vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	//vertexInputState.vertexBindingDescriptionCount = static_cast<uint32_t>(geometry->getBindingDescriptions().size());
-	//vertexInputState.pVertexBindingDescriptions = geometry->getBindingDescriptions().data();
-	//vertexInputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(geometry->getAttributeDescriptions().size());
-	//vertexInputState.pVertexAttributeDescriptions = geometry->getAttributeDescriptions().data();
+	vertexInputState.vertexBindingDescriptionCount = static_cast<uint32_t>(geometry->getBindingDescriptions().size());
+	vertexInputState.pVertexBindingDescriptions = geometry->getBindingDescriptions().data();
+	vertexInputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(geometry->getAttributeDescriptions().size());
+	vertexInputState.pVertexAttributeDescriptions = geometry->getAttributeDescriptions().data();
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

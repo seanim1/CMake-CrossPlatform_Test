@@ -26,7 +26,7 @@ VulkanUberDescriptorSet::VulkanUberDescriptorSet(VkDevice logicalDevice, std::ve
 	VkDescriptorPoolCreateInfo descriptorPoolInfo{};
 	descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descriptorPoolInfo.maxSets = 1;
-	descriptorPoolInfo.poolSizeCount = VulkanDesc::descriptorPoolSizes.size();
+	descriptorPoolInfo.poolSizeCount = (uint32_t) VulkanDesc::descriptorPoolSizes.size();
 	descriptorPoolInfo.pPoolSizes = VulkanDesc::descriptorPoolSizes.data();
 	vkCreateDescriptorPool(logicalDevice, &descriptorPoolInfo, NULL, &descPool);
 

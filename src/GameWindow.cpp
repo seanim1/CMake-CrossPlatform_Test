@@ -1,5 +1,3 @@
-#pragma once
-
 #include "GameWindow.h"
 
 GameWindow::GameWindow(int width, int height, const char* title)

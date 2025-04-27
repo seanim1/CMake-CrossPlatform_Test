@@ -29,7 +29,7 @@ class VulkanSwapChain {
 private:
 
 public:
-	VulkanSwapChain::VulkanSwapChain(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkDevice logicalDevice);
+	VulkanSwapChain(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkDevice logicalDevice);
 	VkSwapchainKHR swapChain; // one
 	VkImage swapChainImages[PRESENT_IMG_COUNT];
 	VkImageView swapChainImageView[PRESENT_IMG_COUNT];

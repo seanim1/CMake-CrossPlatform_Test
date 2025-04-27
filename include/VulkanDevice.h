@@ -27,6 +27,6 @@ class VulkanDevice {
 private:
 
 public:
-	VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, std::vector<const char*>* requestedDeviceExtensions);
+	VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, std::vector<const char*>* requestedDeviceExtensions);
 	VkDevice logicalDevice;
 };

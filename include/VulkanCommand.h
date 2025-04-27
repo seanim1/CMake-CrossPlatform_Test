@@ -26,11 +26,6 @@
 #endif
 #endif
 
-typedef struct COMMAND_BUFFERS {
-	VkCommandBuffer actualWork;
-	VkCommandBuffer writeToSwapChain;// image from a swapChain is available by the time this command can run
-} COMMAND_BUFFERS;
-#define CMDBUF_COUNT (sizeof(COMMAND_BUFFERS) / sizeof(VkCommandBuffer))
 #define PRESENT_IMG_COUNT 2
 
 class VulkanCommand {
@@ -41,7 +36,7 @@ public:
 	VkCommandPool cmdPool;
 	VkCommandBuffer frameCmdBuffers[PRESENT_IMG_COUNT]; // Command buffer storing the dispatch commands and barriers
 	VkCommandBuffer cmdBuf;
-	void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
+	void buildCommandBuffers(VulkanSwapChain* swapChainX,
 		VkPipelineLayout uberPipelineLayout, VkDescriptorSet uberDescSet,
 		VkPipeline graphicsPipeline01, Geometry* geometry);
 };

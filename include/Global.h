@@ -24,4 +24,8 @@ if (ptr == NULL) {                                          \
     MessageBoxA(NULL, FILE_AND_LINE, "Malloc Failed!", MB_ICONEXCLAMATION | MB_OK); \
     exit(EXIT_FAILURE);                                      \
 }
+#else
+    #define CATCH_ERROR(result)          (result)
+    #define CATCH_ZERO_ERROR(result)     (result)
+    #define CATCH_MALLOC_ERROR(ptr)       (ptr)
 #endif
