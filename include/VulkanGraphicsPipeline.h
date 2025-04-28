@@ -5,6 +5,7 @@
 #include <fstream>
 #include <SDL3/SDL.h>
 #include <glm/glm.hpp>
+#include "VulkanResourceHelpers.h"
 
 #ifdef USE_GPU
 #include <SDL3/SDL_vulkan.h>
@@ -31,9 +32,13 @@ private:
 	VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice logicalDevice);
 	std::vector<char> readFile(const std::string& filename);
 public:
-	VulkanGraphicsPipeline(VkDevice logicalDevice, 
+	VulkanGraphicsPipeline(VkPhysicalDevice physicalDevice, VkDevice logicalDevice,
 		VkExtent2D swapChainExtent, VkSurfaceFormatKHR selectedSurfaceFormat, 
 		VkPipelineLayout uberPipelineLayout, Geometry* geometry,
 		VkSpecializationInfo specializationInfo);
 	VkPipeline graphicsPipeline;
+	VkImageView depthImageView;
+	VkDeviceMemory depthImageMemory;
+	VkImage depthImage;
+
 };

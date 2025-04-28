@@ -35,10 +35,9 @@ public:
 	VulkanCommand(VkDevice logicalDevice, uint32_t queueFamilyIndex);
 	VkCommandPool cmdPool;
 	VkCommandBuffer frameCmdBuffers[PRESENT_IMG_COUNT]; // Command buffer storing the dispatch commands and barriers
-	VkCommandBuffer cmdBuf;
 	void buildCommandBuffers(VulkanSwapChain* swapChainX,
 		VkPipelineLayout uberPipelineLayout, VkDescriptorSet uberDescSet,
-		VkPipeline graphicsPipeline01, Geometry* geometry);
+		VkPipeline graphicsPipeline01, VkImageView depthImageView, Geometry* geometry);
     PFN_vkCmdBeginRenderingKHR vkCmdBeginRenderingKHR{ VK_NULL_HANDLE };
     PFN_vkCmdEndRenderingKHR vkCmdEndRenderingKHR{ VK_NULL_HANDLE };
     PFN_vkCmdPipelineBarrier2 vkCmdPipelineBarrier2KHR{ VK_NULL_HANDLE };

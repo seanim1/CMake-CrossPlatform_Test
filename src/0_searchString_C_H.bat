@@ -1,2 +1,2 @@
-findstr /S /I /N "VkRenderingAttachmentInfo" *.cpp
+findstr /S /I /N "createImageView" *.cpp
 pause

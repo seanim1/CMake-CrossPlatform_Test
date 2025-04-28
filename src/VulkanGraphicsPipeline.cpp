@@ -18,6 +18,7 @@ std::vector<char> VulkanGraphicsPipeline::readFile(const std::string& filename) 
 
 	return buffer;
 }
+
 VkShaderModule VulkanGraphicsPipeline::createShaderModule(const std::vector<char>& code, VkDevice logicalDevice) {
 	VkShaderModuleCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -31,7 +32,8 @@ VkShaderModule VulkanGraphicsPipeline::createShaderModule(const std::vector<char
 
 	return shaderModule;
 }
-VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice logicalDevice,
+
+VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkPhysicalDevice physicalDevice, VkDevice logicalDevice,
 	VkExtent2D swapChainExtent, VkSurfaceFormatKHR selectedSurfaceFormat,
 	VkPipelineLayout uberPipelineLayout, Geometry* geometry,
 	VkSpecializationInfo specializationInfo)
@@ -147,12 +149,17 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice logicalDevice,
 	colorBlending.blendConstants[2] = 0.0f;
 	colorBlending.blendConstants[3] = 0.0f;
 
+	VkFormat depthFormat = findDepthFormat(physicalDevice);
+
+	createImage(logicalDevice, physicalDevice, swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
+	depthImageView = createImageView(logicalDevice, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
 	// Dynamic rendering attachment formats (there is no longer a need for VkRenderPass and VkFramebuffer)
 	VkPipelineRenderingCreateInfo dynamicRendering{};
 	dynamicRendering.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
 	dynamicRendering.colorAttachmentCount = 1;
 	dynamicRendering.pColorAttachmentFormats = &selectedSurfaceFormat.format;
-	dynamicRendering.depthAttachmentFormat = VK_FORMAT_D32_SFLOAT;
+	dynamicRendering.depthAttachmentFormat = findDepthFormat(physicalDevice);
 
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

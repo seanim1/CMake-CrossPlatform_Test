@@ -36,7 +36,7 @@ static void init_vkDependencyInfo(VkDependencyInfo* dependencyInfoAddress) {
 
 void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
     VkPipelineLayout uberPipelineLayout, VkDescriptorSet uberDescSet,
-    VkPipeline graphicsPipeline01, Geometry* geometry)
+    VkPipeline graphicsPipeline01, VkImageView depthImageView, Geometry* geometry)
 {
     
     VkDependencyInfo dependencyInfo_bar; memset(&dependencyInfo_bar, 0, sizeof(VkDependencyInfo));
@@ -80,15 +80,22 @@ void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
 
         vkCmdBindDescriptorSets(frameCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, uberPipelineLayout, 0, 1, &uberDescSet, 0, nullptr);
 
-        VkRenderingAttachmentInfo colorAttachment{};
-        colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        colorAttachment.imageView = swapChainX->swapChainImageView[swapChainImageIndex]; // Your color attachment view
+        // New structures are used to define the attachments used in dynamic rendering
+        // Color attachment
+        VkRenderingAttachmentInfo colorAttachment{ VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+        colorAttachment.imageView = swapChainX->swapChainImageView[swapChainImageIndex];
         colorAttachment.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachment.clearValue.color = { 0.0f, 0.0f, 0.2f, 0.0f };
 
-        VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
-        colorAttachment.clearValue = clearColor;
+        // Depth/stencil attachment
+        VkRenderingAttachmentInfo depthStencilAttachment{ VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+        depthStencilAttachment.imageView = depthImageView;
+        depthStencilAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depthStencilAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthStencilAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthStencilAttachment.clearValue.depthStencil = { 1.0f,  0 };
 
         VkRenderingInfo renderingInfo{};
         renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
@@ -97,8 +104,8 @@ void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
-        renderingInfo.pDepthAttachment = nullptr; // No depth
-        renderingInfo.pStencilAttachment = nullptr;
+        renderingInfo.pDepthAttachment = &depthStencilAttachment; // No depth
+        renderingInfo.pStencilAttachment = &depthStencilAttachment;
 
         /*Bar*/imgBar_None2ColAtt_Undef2ColAtt.image = swapChainX->swapChainImages[swapChainImageIndex]; init_vkDependencyInfo(&dependencyInfo_bar);
         /*Bar*/dependencyInfo_bar.imageMemoryBarrierCount = 1; dependencyInfo_bar.pImageMemoryBarriers = &imgBar_None2ColAtt_Undef2ColAtt;

@@ -134,12 +134,12 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 		gScreen->dimension.y
 	);
 	VulkanUberDescriptorSet* descriptorX = new VulkanUberDescriptorSet(deviceX->logicalDevice, descriptorList);
-	VulkanGraphicsPipeline* graphicsPipelineX = new VulkanGraphicsPipeline(deviceX->logicalDevice, 
+	VulkanGraphicsPipeline* graphicsPipelineX = new VulkanGraphicsPipeline(physicalDeviceX->physicalDevice, deviceX->logicalDevice,
 		swapChainX->swapChainExtent, swapChainX->selectedSurfaceFormat, 
 		descriptorX->uberPipelineLayout, box_01, 
 		specialConstantX->specializationInfo);
 	cmdX->buildCommandBuffers(swapChainX, descriptorX->uberPipelineLayout,
-		descriptorX->uberDescSet, graphicsPipelineX->graphicsPipeline, box_01);
+		descriptorX->uberDescSet, graphicsPipelineX->graphicsPipeline, graphicsPipelineX->depthImageView, box_01);
 
 #endif
     return SDL_APP_CONTINUE; // SDL_APP_FAILURE to indicate failure
