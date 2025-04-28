@@ -37,8 +37,22 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice logicalDevice,
 	VkSpecializationInfo specializationInfo)
 {
 
-	auto vertShaderCode = readFile("/Users/sean/Documents/GitHub/CMake-CrossPlatform_Test/shaders/box.vert.spv");
-	auto fragShaderCode = readFile("/Users/sean/Documents/GitHub/CMake-CrossPlatform_Test/shaders/box.frag.spv");
+    std::string currentFilePath = __FILE__;
+        
+    // Find the position of the last directory separator ('/' or '\\')
+    size_t pos = currentFilePath.find_last_of("/\\");
+    
+    // Extract the directory of the current source file (src/)
+    std::string srcDir = currentFilePath.substr(0, pos);
+    
+    // Find the position of the last directory separator to get the root folder
+    pos = srcDir.find_last_of("/\\");
+    
+    // Extract the root folder
+    std::string rootDir = srcDir.substr(0, pos);
+
+    auto vertShaderCode = readFile(rootDir + "/shaders/box.vert.spv");
+    auto fragShaderCode = readFile(rootDir + "/shaders/box.frag.spv");
 
 	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode, logicalDevice);
 	VkShaderModule fragShaderModule = createShaderModule(fragShaderCode, logicalDevice);
