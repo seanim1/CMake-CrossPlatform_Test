@@ -78,10 +78,10 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice logicalDevice,
 	/* Interleaved Vertex attribute setup: [Pos, Normal, Pos, Normal, Pos, Normal] */
 	VkPipelineVertexInputStateCreateInfo vertexInputState{};
 	vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputState.vertexBindingDescriptionCount = static_cast<uint32_t>(geometry->getBindingDescriptions().size());
-	vertexInputState.pVertexBindingDescriptions = geometry->getBindingDescriptions().data();
-	vertexInputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(geometry->getAttributeDescriptions().size());
-	vertexInputState.pVertexAttributeDescriptions = geometry->getAttributeDescriptions().data();
+	//vertexInputState.vertexBindingDescriptionCount = //static_cast<uint32_t>(geometry->getBindingDescriptions().size());
+	//vertexInputState.pVertexBindingDescriptions = geometry->getBindingDescriptions().data();
+	//vertexInputState.vertexAttributeDescriptionCount = //static_cast<uint32_t>(geometry->getAttributeDescriptions().size());
+	//vertexInputState.pVertexAttributeDescriptions = geometry->getAttributeDescriptions().data();
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

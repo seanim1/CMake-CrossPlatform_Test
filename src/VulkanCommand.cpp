@@ -15,6 +15,13 @@ VulkanCommand::VulkanCommand(VkDevice logicalDevice, uint32_t queueFamilyIndex)
     commandBufferAllocateInfo.commandBufferCount = PRESENT_IMG_COUNT;
     // Command buffer for each frame
     CATCH_ERROR(vkAllocateCommandBuffers(logicalDevice, &commandBufferAllocateInfo, (VkCommandBuffer*)frameCmdBuffers));
+    
+
+    // Since we use an extension, we need to expliclity load the function pointers for extension related Vulkan commands
+    vkCmdBeginRenderingKHR = reinterpret_cast<PFN_vkCmdBeginRenderingKHR>(vkGetDeviceProcAddr(logicalDevice, "vkCmdBeginRenderingKHR"));
+    vkCmdEndRenderingKHR = reinterpret_cast<PFN_vkCmdEndRenderingKHR>(vkGetDeviceProcAddr(logicalDevice, "vkCmdEndRenderingKHR"));
+    vkCmdPipelineBarrier2KHR = reinterpret_cast<PFN_vkCmdPipelineBarrier2KHR>(vkGetDeviceProcAddr(logicalDevice, "vkCmdPipelineBarrier2KHR"));
+
 }
 static void init_vkDependencyInfo(VkDependencyInfo* dependencyInfoAddress) {
     dependencyInfoAddress->sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
@@ -26,10 +33,12 @@ static void init_vkDependencyInfo(VkDependencyInfo* dependencyInfoAddress) {
     dependencyInfoAddress->imageMemoryBarrierCount = 0;
     dependencyInfoAddress->pImageMemoryBarriers = NULL;
 }
+
 void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
     VkPipelineLayout uberPipelineLayout, VkDescriptorSet uberDescSet,
     VkPipeline graphicsPipeline01, Geometry* geometry)
 {
+    
     VkDependencyInfo dependencyInfo_bar; memset(&dependencyInfo_bar, 0, sizeof(VkDependencyInfo));
 
     VkImageSubresourceRange subresourceRange_default;
@@ -93,19 +102,19 @@ void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
 
         /*Bar*/imgBar_None2ColAtt_Undef2ColAtt.image = swapChainX->swapChainImages[swapChainImageIndex]; init_vkDependencyInfo(&dependencyInfo_bar);
         /*Bar*/dependencyInfo_bar.imageMemoryBarrierCount = 1; dependencyInfo_bar.pImageMemoryBarriers = &imgBar_None2ColAtt_Undef2ColAtt;
-        /*Bar*/vkCmdPipelineBarrier2(frameCommandBuffer, &dependencyInfo_bar);
+        /*Bar*/vkCmdPipelineBarrier2KHR(frameCommandBuffer, &dependencyInfo_bar);
 
-        vkCmdBeginRendering(frameCmdBuffers[swapChainImageIndex], &renderingInfo);
+        vkCmdBeginRenderingKHR(frameCmdBuffers[swapChainImageIndex], &renderingInfo);
 
         vkCmdBindPipeline(frameCmdBuffers[swapChainImageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline01);
 
         vkCmdDraw(frameCmdBuffers[swapChainImageIndex], 3, 1, 0, 0);
 
-        vkCmdEndRendering(frameCmdBuffers[swapChainImageIndex]);
+        vkCmdEndRenderingKHR(frameCmdBuffers[swapChainImageIndex]);
 
         /*Bar*/imgBar_ColAtt2None_ColAtt2PresentSrc.image = swapChainX->swapChainImages[swapChainImageIndex]; init_vkDependencyInfo(&dependencyInfo_bar);
         /*Bar*/dependencyInfo_bar.imageMemoryBarrierCount = 1; dependencyInfo_bar.pImageMemoryBarriers = &imgBar_ColAtt2None_ColAtt2PresentSrc;
-        /*Bar*/vkCmdPipelineBarrier2(frameCommandBuffer, &dependencyInfo_bar);
+        /*Bar*/vkCmdPipelineBarrier2KHR(frameCommandBuffer, &dependencyInfo_bar);
 
         if (vkEndCommandBuffer(frameCmdBuffers[swapChainImageIndex]) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer!");

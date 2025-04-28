@@ -39,4 +39,8 @@ public:
 	void buildCommandBuffers(VulkanSwapChain* swapChainX,
 		VkPipelineLayout uberPipelineLayout, VkDescriptorSet uberDescSet,
 		VkPipeline graphicsPipeline01, Geometry* geometry);
+    PFN_vkCmdBeginRenderingKHR vkCmdBeginRenderingKHR{ VK_NULL_HANDLE };
+    PFN_vkCmdEndRenderingKHR vkCmdEndRenderingKHR{ VK_NULL_HANDLE };
+    PFN_vkCmdPipelineBarrier2 vkCmdPipelineBarrier2KHR{ VK_NULL_HANDLE };
+
 };
