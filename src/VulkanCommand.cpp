@@ -105,7 +105,7 @@ void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
         renderingInfo.pDepthAttachment = &depthStencilAttachment; // No depth
-        renderingInfo.pStencilAttachment = &depthStencilAttachment;
+        renderingInfo.pStencilAttachment = nullptr;
 
         /*Bar*/imgBar_None2ColAtt_Undef2ColAtt.image = swapChainX->swapChainImages[swapChainImageIndex]; init_vkDependencyInfo(&dependencyInfo_bar);
         /*Bar*/dependencyInfo_bar.imageMemoryBarrierCount = 1; dependencyInfo_bar.pImageMemoryBarriers = &imgBar_None2ColAtt_Undef2ColAtt;
