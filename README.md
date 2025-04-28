@@ -1,6 +1,7 @@
-# SDL3 & Vulkan skeleton for Windows, Linux, MacOS, Android, iOS
+# SDL3 & Vulkan skeleton for Windows, Linux, MacOS, Android, iOS (Synchronization2 and Dynamic Rendering doesn't appear to work on MacOS)
 ![Preview Image](Screenshot.png)
 - Renders rotating triangle in real-time on GPU.
+- *Note I am not sure of the reason but Synchronization2 and Dynamic Rendering doesn't appear to work on MacOS. It does show up on vkEnumerateDeviceExtensionProperties, but calling on either vkCmdPipelineBarrier2 and vkCmdBeginRendering, will lead to "Thread 1: EXC_BAD_ACCESS (code=1, address=0x0)" in the XCode.
 ## Integrate SDL3
 ### Windows
 - [Download SDL](https://github.com/libsdl-org/SDL/releases)
