@@ -75,7 +75,7 @@
    - select the project in the navigator, click on your target under the “Targets”, go to the “Build Settings” tab, search for “Search Paths” -> “Header Search Paths”, in the “Header Search Paths”, specify the path to the include folder, .h files should all be accessible in the XCode editor .cpp files.
 - Shader Binary files:
    - Go into "shaderBinary" folder.
-   - Select all the .spv files, and drag it into the XCode project. (it is important you do not drag the whole folder in)
+   - Select all the .spv files, and drag it into the XCode project. (it is important you do not drag the "shaderBinary" folder in, but each individual .spv files)
 ## Integrate Vulkan SDK
 ### Windows, Linux, MacOS
 - For Windows, Linux, MacOS, just download the respective SDK. [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
