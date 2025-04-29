@@ -19,7 +19,7 @@ GameWindow::GameWindow(int width, int height, const char* title)
             int display_height = display_bounds.h;
             SDL_Log("Screen size: %d x %d", display_width, display_height);
             
-#if defined(__ANDROID__) // Android always goes for Full Screen
+#if defined(__ANDROID__) || defined(__IPHONE_OS_VERSION_MIN_REQUIRED) // Android & iOS always goes for Full Screen
             dimension = glm::ivec2(display_height, display_width);
 #endif
         }

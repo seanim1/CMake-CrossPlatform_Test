@@ -1,2 +1,2 @@
-findstr /S /I /N "createImageView" *.cpp
+findstr /S /I /N "file!" *.cpp
 pause
