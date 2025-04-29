@@ -49,7 +49,7 @@
    - Where it says right click the project, we refer to the one with triangle icon.
    - as for "hello.c," “copy files to destination”
    - as for "SDL.xcodeproj." "link by reference"
-## Integrate our source and headers
+## Integrate our source, headers, and shaders
 ### Windows, Linux, MacOS
 - Handled by CMake
 ### Android
@@ -73,6 +73,9 @@
 - Include files:
    - it is important that you do not drag in the include folder into the new project.
    - select the project in the navigator, click on your target under the “Targets”, go to the “Build Settings” tab, search for “Search Paths” -> “Header Search Paths”, in the “Header Search Paths”, specify the path to the include folder, .h files should all be accessible in the XCode editor .cpp files.
+- Shader Binary files:
+   - Go into "shaderBinary" folder.
+   - Select all the .spv files, and drag it into the XCode project.
 ## Integrate Vulkan SDK
 ### Windows, Linux, MacOS
 - For Windows, Linux, MacOS, just download the respective SDK. [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
