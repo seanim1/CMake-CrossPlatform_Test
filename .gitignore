@@ -8,11 +8,13 @@
 !src/
 !include/
 !shaders/
+!shaderBinary/
 
 # Allow contents inside src and include
 !src/**
 !include/**
 !shaders/**
+!shaderBinary/**
 
 # don't ignore the .gitignore!
 !.gitignore
