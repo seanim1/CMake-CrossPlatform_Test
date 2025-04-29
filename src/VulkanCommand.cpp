@@ -15,7 +15,6 @@ VulkanCommand::VulkanCommand(VkDevice logicalDevice, uint32_t queueFamilyIndex)
     commandBufferAllocateInfo.commandBufferCount = PRESENT_IMG_COUNT;
     // Command buffer for each frame
     CATCH_ERROR(vkAllocateCommandBuffers(logicalDevice, &commandBufferAllocateInfo, (VkCommandBuffer*)frameCmdBuffers));
-    
 
     // Since we use an extension, we need to expliclity load the function pointers for extension related Vulkan commands
     vkCmdBeginRenderingKHR = reinterpret_cast<PFN_vkCmdBeginRenderingKHR>(vkGetDeviceProcAddr(logicalDevice, "vkCmdBeginRenderingKHR"));
@@ -90,12 +89,12 @@ void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
         colorAttachment.clearValue.color = { 0.0f, 0.0f, 0.2f, 0.0f };
 
         // Depth/stencil attachment
-        VkRenderingAttachmentInfo depthStencilAttachment{ VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-        depthStencilAttachment.imageView = depthImageView;
-        depthStencilAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        depthStencilAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        depthStencilAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        depthStencilAttachment.clearValue.depthStencil = { 1.0f,  0 };
+        VkRenderingAttachmentInfo depthAttachment{ VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+        depthAttachment.imageView = depthImageView;
+        depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthAttachment.clearValue.depthStencil = { 1.0f, 0 };
 
         VkRenderingInfo renderingInfo{};
         renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
@@ -104,7 +103,7 @@ void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
-        renderingInfo.pDepthAttachment = &depthStencilAttachment; // No depth
+        renderingInfo.pDepthAttachment = &depthAttachment; // No depth
         renderingInfo.pStencilAttachment = nullptr;
 
         /*Bar*/imgBar_None2ColAtt_Undef2ColAtt.image = swapChainX->swapChainImages[swapChainImageIndex]; init_vkDependencyInfo(&dependencyInfo_bar);
