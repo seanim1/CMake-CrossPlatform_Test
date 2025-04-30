@@ -67,6 +67,10 @@
    - ```make
      APP_CPPFLAGS += -fexceptions
      APP_STL := c++_shared
+- Shader Binary files:
+   - [Based on this: Load in-app content](https://developer.android.com/develop/ui/views/layout/webapps/load-local-content)
+   - In Android Studio, right-click the app > src > main folder and then choose New > Directory.
+   - put .spv files in there.
 ### iOS
 - Source file:
    - Drag in the “src” folder from my repository into the new project (Action: Reference files in place). XCode should automatically be able to find the src files.
