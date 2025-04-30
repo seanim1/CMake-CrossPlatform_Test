@@ -13,4 +13,5 @@ uint32_t VulkanDesc::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags p
 			return i;
 		}
 	}
+    throw std::runtime_error("Failed to find suitable memory type!");
 }

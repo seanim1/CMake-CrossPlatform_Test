@@ -1,4 +1,4 @@
-#define SDL_MAIN_USE_CALLBACKS 1
+    #define SDL_MAIN_USE_CALLBACKS 1
 
 #include "Global.h"
 #include "GameWindow.h"
