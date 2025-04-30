@@ -63,7 +63,7 @@
      LOCAL_C_INCLUDES := \
       $(LOCAL_PATH)/$(SDL_PATH)/include \
       $(LOCAL_PATH)/include
-- In Android.mk, add the following to compile in C++:
+- In Application.mk, add the following to compile in C++:
    - ```make
      APP_CPPFLAGS += -fexceptions
      APP_STL := c++_shared
