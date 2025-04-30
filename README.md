@@ -109,6 +109,8 @@
 ### Windows (Visual Studio), Linux, MacOS (XCode)
 - Use CMake GUI (or CMake command line) to configure, generate, open project. build & run ALL_BUILD first, then build & run the Project. 
 ### Android (Android Studio)
+- [Run the project on Android Device](https://developer.android.com/studio/run/device)
+- On the device, open the Settings app, select Developer options, and then enable USB debugging. (you may need to turn it off and back on)
 - In Android Studio (if you aren't in it already), connect with your Android device then press "Run".
 ### iOS (XCode)
 - try to build the project.
