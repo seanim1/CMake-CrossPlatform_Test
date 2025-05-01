@@ -67,6 +67,10 @@
    - ```make
      APP_CPPFLAGS += -fexceptions
      APP_STL := c++_shared
+- Shader Binary files:
+   - [Based on this: Load in-app content](https://developer.android.com/develop/ui/views/layout/webapps/load-local-content)
+   - In Android Studio, right-click the app > src > main folder and then choose New > Directory.
+   - put .spv files in there.
 ### iOS
 - Source file:
    - Drag in the “src” folder from my repository into the new project (Action: Reference files in place). XCode should automatically be able to find the src files.
@@ -84,8 +88,8 @@
 - For Android, its SDK should have Vulkan SDK already installed, but the path to the dynamic library has to be specified.
 - In Android.mk, 
 - ```make
-   VULKAN_LIB_PATH := $(NDK_ROOT)/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/aarch64-linux-android/28
-- *(28 here is the Android SDK API version, equivalent to Vulkan 1.1), then add,
+   VULKAN_LIB_PATH := $(NDK_ROOT)/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/aarch64-linux-android/33
+- *(28 here is the Android SDK API version, equivalent to Vulkan 1.1), We need 33+, since 33 is when Vulkan 1.3 is supported. then add,
 - ```make
    LOCAL_LDLIBS += -L$(VULKAN_LIB_PATH) -lvulkan
 - You might want to go to Application.mk and App/build.gradle and specify the targetSdkVersion numbers accordingly.
