@@ -7,7 +7,7 @@ VulkanSwapChain::VulkanSwapChain(VkPhysicalDevice physicalDevice, VkSurfaceKHR s
 	(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfCaps));
 	swapChainExtent = surfCaps.currentExtent; // Swapchain image size = Extent
 	// Determine the number of images
-	uint32_t swapchainImageCount = surfCaps.minImageCount;
+	uint32_t swapchainImageCount = surfCaps.minImageCount; // I noticed this is 3 on Android phone. 2 on all the other platforms.
 	if ((surfCaps.maxImageCount > 0) && (swapchainImageCount > surfCaps.maxImageCount)) {
 		swapchainImageCount = surfCaps.maxImageCount;
 	}
