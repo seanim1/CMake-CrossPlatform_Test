@@ -1,4 +1,5 @@
 # SDL3 & Vulkan skeleton for Windows, Linux, MacOS, Android, iOS
+- Runs on devices supporting Vulkan 1.1+
 ![Preview Image](Screenshot.png)
 - Renders rotating triangle in real-time on GPU.
 ## Integrate SDL3
