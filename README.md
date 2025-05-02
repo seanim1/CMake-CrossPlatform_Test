@@ -68,9 +68,10 @@
      APP_CPPFLAGS += -fexceptions
      APP_STL := c++_shared
 - Shader Binary files:
-   - [Based on this: Load in-app content](https://developer.android.com/develop/ui/views/layout/webapps/load-local-content)
-   - In Android Studio, right-click the app > src > main folder and then choose New > Directory.
-   - put .spv files in there.
+   - [Load in-app content](https://developer.android.com/develop/ui/views/layout/webapps/load-local-content)
+      - In Android Studio, right-click the app > src > main folder and then choose New > Directory.
+      - Name the folder "assets"
+   - from "shaderBinary" folder, move all the .spv files to the "app/src/main/assets"
 ### iOS
 - Source file:
    - Drag in the “src” folder from my repository into the new project (Action: Reference files in place). XCode should automatically be able to find the src files.
@@ -113,8 +114,10 @@
 ### Windows (Visual Studio), Linux, MacOS (XCode)
 - Use CMake GUI (or CMake command line) to configure, generate, open project. build & run ALL_BUILD first, then build & run the Project. 
 ### Android (Android Studio)
+- [Enable the developer mode](https://developer.android.com/studio/debug/dev-options)
+   - Tapping the Build Number 7 times.
 - [Run the project on Android Device](https://developer.android.com/studio/run/device)
-- On the device, open the Settings app, select Developer options, and then enable USB debugging. (you may need to turn it off and back on)
+   - On the device, open the Settings app, select Developer options, and then enable USB debugging. (you may need to turn it off and back on)
 - In Android Studio (if you aren't in it already), connect with your Android device then press "Run".
 ### iOS (XCode)
 - try to build the project.
