@@ -14,7 +14,7 @@ public:
     uint32_t getIndexCount() const override;
 
     const std::vector<VkVertexInputAttributeDescription>& getAttributeDescriptions() const override;
-    const std::vector<VkVertexInputBindingDescription>& Box::getBindingDescriptions() const override;
+    const std::vector<VkVertexInputBindingDescription>& getBindingDescriptions() const override;
 
 private:
     std::vector<Vertex> vertices;

@@ -27,14 +27,20 @@
 #endif
 #endif
 
+typedef struct GpuConstantData {
+	int Screen_Width;
+	int Screen_Heigt;
+} GpuConstantData;
+
 class VulkanSpecializationConstant {
 private:
 public:
-	VulkanSpecializationConstant::VulkanSpecializationConstant(
+	VulkanSpecializationConstant(
 		int Screen_Width,
 		int Screen_Heigt
 	);
-	static constexpr int specialization_constant_count = 2;  // static, same across all instances
-	VkSpecializationMapEntry specializationMapEntries[specialization_constant_count];
-	VkSpecializationInfo specializationInfo;
+	static constexpr int specialization_constant_count = (sizeof(GpuConstantData) / 4);  // static, same across all instances
+	VkSpecializationMapEntry specializationMapEntries[specialization_constant_count]{};
+	VkSpecializationInfo specializationInfo{};
+	GpuConstantData gpuConstantData{};
 };

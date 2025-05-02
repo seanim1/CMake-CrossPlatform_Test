@@ -17,13 +17,13 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamily
 		for (const auto& supportedExtension : supportedDeviceExtensions) {
 			if (strcmp(extension, supportedExtension.extensionName) == 0) {
 				enabledDeviceExtensions.push_back(extension);
-				std::cout << "\t Device Extension '" << extension << "' is supported.\n";
+				SDL_Log("\t Device Extension '%s' is supported.\n", extension);
 				found = true;
 				break;
 			}
 		}
 		if (!found) {
-			std::cout << "\t Device Extension '" << extension << "' is NOT supported.\n";
+			SDL_Log("\t Device Extension '%s' is supported.\n", extension);
 		}
 	}
 	VkDeviceCreateInfo deviceCreateInfo; memset(&deviceCreateInfo, 0, sizeof(VkDeviceCreateInfo));
@@ -53,33 +53,24 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamily
 	// >> Enable the 16BitStorage feature
 	VkPhysicalDevice16BitStorageFeaturesKHR storage16bitFeatures; memset(&storage16bitFeatures, 0, sizeof(VkPhysicalDevice16BitStorageFeaturesKHR));
 	storage16bitFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES_KHR;
-	storage16bitFeatures.storageBuffer16BitAccess = VK_TRUE;
 	// >> Enable the 8BitStorage feature
 	VkPhysicalDevice8BitStorageFeaturesKHR storage8bitFeatures; memset(&storage8bitFeatures, 0, sizeof(VkPhysicalDevice8BitStorageFeaturesKHR));
 	storage8bitFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES_KHR;
-	storage8bitFeatures.uniformAndStorageBuffer8BitAccess = VK_TRUE;
 
 	// >> Enable the Float16Int8 feature
 	VkPhysicalDeviceShaderFloat16Int8FeaturesKHR float16Int8Features; memset(&float16Int8Features, 0, sizeof(VkPhysicalDeviceShaderFloat16Int8FeaturesKHR));
 	float16Int8Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES_KHR;
-	float16Int8Features.shaderFloat16 = VK_TRUE; // Enable Float16 support
-	float16Int8Features.shaderInt8 = VK_TRUE;    // Enable Int8 support
-	
+
 	// >> Enable the Dynamic Rendering feature
 	VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
 	dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-	dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+	//dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
 
 	VkPhysicalDeviceShaderAtomicFloatFeaturesEXT atomicFloatFeatures; memset(&atomicFloatFeatures, 0, sizeof(VkPhysicalDeviceShaderAtomicFloatFeaturesEXT));
 	atomicFloatFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT;
-	atomicFloatFeatures.shaderBufferFloat32Atomics = VK_TRUE;
-	atomicFloatFeatures.shaderBufferFloat32AtomicAdd = VK_TRUE;
-	atomicFloatFeatures.shaderImageFloat32Atomics = VK_TRUE;
-	atomicFloatFeatures.shaderImageFloat32AtomicAdd = VK_TRUE;
 
 	VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT atomicFloat2Features; memset(&atomicFloat2Features, 0, sizeof(VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT));
 	atomicFloat2Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT;
-	atomicFloat2Features.shaderSharedFloat16AtomicAdd = VK_TRUE;
 
 	//VkPhysicalDeviceShaderAtomicInt64FeaturesKHR atomicInt64Features; memset(&atomicInt64Features, 0, sizeof(VkPhysicalDeviceShaderAtomicInt64FeaturesKHR));
 	//atomicInt64Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES_KHR;
@@ -105,43 +96,49 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamily
 	// Step 3: Query the physical device for supported features
 	vkGetPhysicalDeviceFeatures2(physicalDevice, &deviceFeatures2);
 
-	printf("\t VkPhysicalDeviceFeatures2 Queries:\n");
+	SDL_Log("\t VkPhysicalDeviceFeatures2 Queries:\n");
 	// Step 4: Check if bufferDeviceAddressCaptureReplay is supported
 	if (bufferDeviceAddressFeatures.bufferDeviceAddressCaptureReplay) {
-		printf("\t\t bufferDeviceAddressCaptureReplay is supported.\n");
+		SDL_Log("\t\t bufferDeviceAddressCaptureReplay is supported.\n");
 	}
 	else {
-		printf("\t\t bufferDeviceAddressCaptureReplay is NOT supported.\n");
+		SDL_Log("\t\t bufferDeviceAddressCaptureReplay is NOT supported.\n");
 	}
 	if (synchronization2Features.synchronization2) {
-		printf("\t\t synchronization2 is supported.\n");
+		SDL_Log("\t\t synchronization2 is supported.\n");
 	}
 	else {
-		printf("\t\t synchronization2 is NOT supported.\n");
+		SDL_Log("\t\t synchronization2 is NOT supported.\n");
 	}
 	if (synchronization2Features.synchronization2) {
 		deviceCreateInfo.pNext = &deviceFeatures2;
 	}
 	if (storage8bitFeatures.uniformAndStorageBuffer8BitAccess && storage16bitFeatures.storageBuffer16BitAccess) {
-		printf("\t\t 8-bit and 16-bit storage features are supported.\n");
+		SDL_Log("\t\t 8-bit and 16-bit storage features are supported.\n");
 	}
 	else {
-		printf("\t\t 8-bit or 16-bit storage features are not supported.\n");
+		SDL_Log("\t\t 8-bit or 16-bit storage features are not supported.\n");
 	}
 	if (atomicFloatFeatures.shaderImageFloat32AtomicAdd && atomicFloatFeatures.shaderImageFloat32Atomics) {
-		printf("\t\t shaderImageFloat32AtomicAdd is supported.\n");
+		SDL_Log("\t\t shaderImageFloat32AtomicAdd is supported.\n");
 	}
 	else {
-		printf("\t\t shaderImageFloat32AtomicAdd is not supported.\n");
+		SDL_Log("\t\t shaderImageFloat32AtomicAdd is not supported.\n");
 	}
 	if (atomicFloat2Features.shaderBufferFloat16AtomicAdd) {
-		printf("\t\t shaderBufferFloat16AtomicAdd is supported.\n");
+		SDL_Log("\t\t shaderBufferFloat16AtomicAdd is supported.\n");
 	}
 	else {
-		printf("\t\t shaderBufferFloat16AtomicAdd is not supported.\n");
+		SDL_Log("\t\t shaderBufferFloat16AtomicAdd is not supported.\n");
+	}
+	if (dynamicRenderingFeatures.dynamicRendering) {
+		SDL_Log("\t\t dynamicRendering is supported.\n");
+	}
+	else {
+		SDL_Log("\t\t dynamicRendering is not supported.\n");
 	}
 	VkResult result = vkCreateDevice(physicalDevice, &deviceCreateInfo, NULL, &logicalDevice);
 	if (result != VK_SUCCESS) {
-		printf("Failed to create Vulkan Device! Error code: %d\n", result);
+		SDL_Log("Failed to create Vulkan Device! Error code: %d\n", result);
 	}
 }

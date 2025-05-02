@@ -28,7 +28,7 @@ class VulkanUberDescriptorSet {
 private:
 
 public:
-	VulkanUberDescriptorSet::VulkanUberDescriptorSet(VkDevice logicalDevice, std::vector<VulkanDesc*>& descriptorList);
+	VulkanUberDescriptorSet(VkDevice logicalDevice, std::vector<VulkanDesc*>& descriptorList);
 	VkDescriptorSetLayout uberSetLayout;
 	VkDescriptorPool descPool;
 	VkDescriptorSet uberDescSet;

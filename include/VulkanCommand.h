@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include <array>
 #include "VulkanSwapChain.h"
+#include "VulkanGraphicsPipeline.h"
 #include "GeometryBase.h"
 
 #ifdef USE_GPU
@@ -26,22 +27,18 @@
 #endif
 #endif
 
-typedef struct COMMAND_BUFFERS {
-	VkCommandBuffer actualWork;
-	VkCommandBuffer writeToSwapChain;// image from a swapChain is available by the time this command can run
-} COMMAND_BUFFERS;
-#define CMDBUF_COUNT (sizeof(COMMAND_BUFFERS) / sizeof(VkCommandBuffer))
-#define PRESENT_IMG_COUNT 2
-
 class VulkanCommand {
 private:
 
 public:
-	VulkanCommand(VkDevice logicalDevice, uint32_t queueFamilyIndex);
+	VulkanCommand(VkDevice logicalDevice, uint32_t queueFamilyIndex, uint32_t swapchainImageCount);
 	VkCommandPool cmdPool;
-	VkCommandBuffer frameCmdBuffers[PRESENT_IMG_COUNT]; // Command buffer storing the dispatch commands and barriers
-	VkCommandBuffer cmdBuf;
-	void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
+	std::vector<VkCommandBuffer> frameCmdBuffers; // Command buffer storing the dispatch commands and barriers
+	void buildCommandBuffers(VulkanSwapChain* swapChainX,
 		VkPipelineLayout uberPipelineLayout, VkDescriptorSet uberDescSet,
-		VkPipeline graphicsPipeline01, Geometry* geometry);
+		VulkanGraphicsPipeline* graphicsPipelineX, Geometry* geometry);
+    PFN_vkCmdBeginRenderingKHR vkCmdBeginRenderingKHR{ VK_NULL_HANDLE };
+    PFN_vkCmdEndRenderingKHR vkCmdEndRenderingKHR{ VK_NULL_HANDLE };
+    PFN_vkCmdPipelineBarrier2 vkCmdPipelineBarrier2KHR{ VK_NULL_HANDLE };
+
 };

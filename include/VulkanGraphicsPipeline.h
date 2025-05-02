@@ -2,9 +2,12 @@
 #include "Global.h"
 #include "GeometryBase.h"
 #include <vector>
+#include <array>
 #include <fstream>
 #include <SDL3/SDL.h>
 #include <glm/glm.hpp>
+#include "VulkanResourceHelpers.h"
+#include "VulkanSwapChain.h"
 
 #ifdef USE_GPU
 #include <SDL3/SDL_vulkan.h>
@@ -26,22 +29,21 @@
 #include <vulkan/vulkan_beta.h>
 #endif
 #endif
-typedef struct SpecializationConstantData {
-	int Screen_Width;
-	int Screen_Heigt;
-} SpecializationConstantData;
 class VulkanGraphicsPipeline {
 private:
-	VkShaderModule VulkanGraphicsPipeline::createShaderModule(const std::vector<char>& code, VkDevice logicalDevice);
-	std::vector<char> VulkanGraphicsPipeline::readFile(const std::string& filename);
-	void initSpecializationConstant();
+	VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice logicalDevice);
+	std::vector<char> readFile(const std::string& filename);
 public:
-	VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice logicalDevice, 
-		VkExtent2D swapChainExtent, VkSurfaceFormatKHR selectedSurfaceFormat, 
-		VkPipelineLayout uberPipelineLayout, Geometry* geometry);
+	VulkanGraphicsPipeline(VkPhysicalDevice physicalDevice, VkDevice logicalDevice,
+		VulkanSwapChain* swapChainX, VkSurfaceFormatKHR selectedSurfaceFormat,
+		VkPipelineLayout uberPipelineLayout, Geometry* geometry,
+		VkSpecializationInfo specializationInfo);
 	VkPipeline graphicsPipeline;
-	static constexpr int specialization_constant_count = (sizeof(SpecializationConstantData) / 4);  // static, same across all instances
-	VkSpecializationMapEntry specializationMapEntries[specialization_constant_count];
-	VkSpecializationInfo specializationInfo;
-	SpecializationConstantData gpuConstantData;
+	VkImageView depthImageView;
+	VkDeviceMemory depthImageMemory;
+	VkImage depthImage;
+	// non-dynamic rendering
+	VkRenderPass renderPass;
+	std::vector<VkFramebuffer> swapChainFramebuffers; // where graphics pipeline output image will be rendered to
+
 };

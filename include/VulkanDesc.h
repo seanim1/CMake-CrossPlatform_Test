@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Global.h"
 #include <vulkan/vulkan.h>
 #include <cstring>
 #include <vector>

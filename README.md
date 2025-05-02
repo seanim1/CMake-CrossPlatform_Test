@@ -1,5 +1,5 @@
-# SDL3 & Vulkan skeleton for Windows, Linux, MacOS, Android, iOS
-![Preview Image](Screenshot.png)
+# SDL3 & Vulkan 1.1+ skeleton for Windows, Linux, MacOS, Android, iOS
+![6_Triangle](https://github.com/user-attachments/assets/eeffeab5-3c8b-41e4-a5df-04f8fe32d399)
 - Renders rotating triangle in real-time on GPU.
 ## Integrate SDL3
 ### Windows
@@ -49,7 +49,7 @@
    - Where it says right click the project, we refer to the one with triangle icon.
    - as for "hello.c," “copy files to destination”
    - as for "SDL.xcodeproj." "link by reference"
-## Integrate our source and headers
+## Integrate our source, headers, and shaders
 ### Windows, Linux, MacOS
 - Handled by CMake
 ### Android
@@ -63,16 +63,24 @@
      LOCAL_C_INCLUDES := \
       $(LOCAL_PATH)/$(SDL_PATH)/include \
       $(LOCAL_PATH)/include
-- In Android.mk, add the following to compile in C++:
+- In Application.mk, add the following to compile in C++:
    - ```make
      APP_CPPFLAGS += -fexceptions
      APP_STL := c++_shared
+- Shader Binary files:
+   - [Load in-app content](https://developer.android.com/develop/ui/views/layout/webapps/load-local-content)
+      - In Android Studio, right-click the app > src > main folder and then choose New > Directory.
+      - Name the folder "assets"
+   - from "shaderBinary" folder, move all the .spv files to the "app/src/main/assets"
 ### iOS
 - Source file:
    - Drag in the “src” folder from my repository into the new project (Action: Reference files in place). XCode should automatically be able to find the src files.
 - Include files:
    - it is important that you do not drag in the include folder into the new project.
    - select the project in the navigator, click on your target under the “Targets”, go to the “Build Settings” tab, search for “Search Paths” -> “Header Search Paths”, in the “Header Search Paths”, specify the path to the include folder, .h files should all be accessible in the XCode editor .cpp files.
+- Shader Binary files:
+   - Go into "shaderBinary" folder.
+   - Select all the .spv files, and drag it into the XCode project. (it is important you do not drag the "shaderBinary" folder in, but each individual .spv files)
 ## Integrate Vulkan SDK
 ### Windows, Linux, MacOS
 - For Windows, Linux, MacOS, just download the respective SDK. [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
@@ -81,8 +89,8 @@
 - For Android, its SDK should have Vulkan SDK already installed, but the path to the dynamic library has to be specified.
 - In Android.mk, 
 - ```make
-   VULKAN_LIB_PATH := $(NDK_ROOT)/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/aarch64-linux-android/28
-- *(28 here is the Android SDK API version, equivalent to Vulkan 1.1), then add,
+   VULKAN_LIB_PATH := $(NDK_ROOT)/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/aarch64-linux-android/33
+- *(28 here is the Android SDK API version, equivalent to Vulkan 1.1), We need 33+, since 33 is when Vulkan 1.3 is supported. then add,
 - ```make
    LOCAL_LDLIBS += -L$(VULKAN_LIB_PATH) -lvulkan
 - You might want to go to Application.mk and App/build.gradle and specify the targetSdkVersion numbers accordingly.
@@ -106,6 +114,10 @@
 ### Windows (Visual Studio), Linux, MacOS (XCode)
 - Use CMake GUI (or CMake command line) to configure, generate, open project. build & run ALL_BUILD first, then build & run the Project. 
 ### Android (Android Studio)
+- [Enable the developer mode](https://developer.android.com/studio/debug/dev-options)
+   - Tapping the Build Number 7 times.
+- [Run the project on Android Device](https://developer.android.com/studio/run/device)
+   - On the device, open the Settings app, select Developer options, and then enable USB debugging. (you may need to turn it off and back on)
 - In Android Studio (if you aren't in it already), connect with your Android device then press "Run".
 ### iOS (XCode)
 - try to build the project.

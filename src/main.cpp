@@ -1,4 +1,4 @@
-#define SDL_MAIN_USE_CALLBACKS 1
+    #define SDL_MAIN_USE_CALLBACKS 1
 
 #include "Global.h"
 #include "GameWindow.h"
@@ -25,6 +25,7 @@
 #include "VulkanSwapChain.h"
 #include "VulkanCommand.h"
 #include "VulkanSynchronization.h"
+#include "VulkanSpecializationConstant.h"
 #include "VulkanDescBufferUniform.h"
 #include "VulkanUberDescriptorSet.h"
 #include "VulkanGraphicsPipeline.h"
@@ -72,7 +73,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	gCamera = new GameCamera(60.0f, gWindow->dimension.x / static_cast<float>(gWindow->dimension.y), 0.1f, 100.0f);
 	gInput = new GameInput();
     gTimer = new GameTimer();
-
+	//gCamera->SetPosition(glm::vec3(0., 1., 1.));
 #ifdef USE_GPU
 	std::vector<const char*> requestingInstanceExtensions = {
 	VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
@@ -122,22 +123,25 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	queueX->initQueue(deviceX->logicalDevice);
 	instanceX->initSurface(gWindow->window);
 	swapChainX = new VulkanSwapChain(physicalDeviceX->physicalDevice, instanceX->surface, deviceX->logicalDevice);
-	cmdX = new VulkanCommand(deviceX->logicalDevice, queueX->queueFamilyIndex);
+	cmdX = new VulkanCommand(deviceX->logicalDevice, queueX->queueFamilyIndex, swapChainX->swapChainImages.size());
 	syncX = new VulkanSynchronization(deviceX->logicalDevice);
 	Box* box_01 = new Box(2.0f, 2.0f, 2.0f);
 
 	descriptorList.push_back( new VulkanDescBufferUniform(&cam, sizeof(cam)) );
 	((VulkanDescBufferUniform*)descriptorList[0])->allocateUniformBuffer(deviceX->logicalDevice, physicalDeviceX->physicalDevice);
-	//descBufferUniformX
+	VulkanSpecializationConstant* specialConstantX = new VulkanSpecializationConstant(
+		gScreen->dimension.x,
+		gScreen->dimension.y
+	);
 	VulkanUberDescriptorSet* descriptorX = new VulkanUberDescriptorSet(deviceX->logicalDevice, descriptorList);
-	VulkanGraphicsPipeline* graphicsPipelineX = new VulkanGraphicsPipeline(deviceX->logicalDevice, 
-		swapChainX->swapChainExtent, swapChainX->selectedSurfaceFormat, 
-		descriptorX->uberPipelineLayout, box_01);
+	VulkanGraphicsPipeline* graphicsPipelineX = new VulkanGraphicsPipeline(physicalDeviceX->physicalDevice, deviceX->logicalDevice,
+		swapChainX, swapChainX->selectedSurfaceFormat, 
+		descriptorX->uberPipelineLayout, box_01, 
+		specialConstantX->specializationInfo);
 	cmdX->buildCommandBuffers(swapChainX, descriptorX->uberPipelineLayout,
-		descriptorX->uberDescSet, graphicsPipelineX->graphicsPipeline, box_01);
+		descriptorX->uberDescSet, graphicsPipelineX, box_01);
 
 #endif
-
     return SDL_APP_CONTINUE; // SDL_APP_FAILURE to indicate failure
 }
 
