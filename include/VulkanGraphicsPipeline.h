@@ -2,10 +2,12 @@
 #include "Global.h"
 #include "GeometryBase.h"
 #include <vector>
+#include <array>
 #include <fstream>
 #include <SDL3/SDL.h>
 #include <glm/glm.hpp>
 #include "VulkanResourceHelpers.h"
+#include "VulkanSwapChain.h"
 
 #ifdef USE_GPU
 #include <SDL3/SDL_vulkan.h>
@@ -33,12 +35,15 @@ private:
 	std::vector<char> readFile(const std::string& filename);
 public:
 	VulkanGraphicsPipeline(VkPhysicalDevice physicalDevice, VkDevice logicalDevice,
-		VkExtent2D swapChainExtent, VkSurfaceFormatKHR selectedSurfaceFormat, 
+		VulkanSwapChain* swapChainX, VkSurfaceFormatKHR selectedSurfaceFormat,
 		VkPipelineLayout uberPipelineLayout, Geometry* geometry,
 		VkSpecializationInfo specializationInfo);
 	VkPipeline graphicsPipeline;
 	VkImageView depthImageView;
 	VkDeviceMemory depthImageMemory;
 	VkImage depthImage;
+	// non-dynamic rendering
+	VkRenderPass renderPass;
+	std::vector<VkFramebuffer> swapChainFramebuffers; // where graphics pipeline output image will be rendered to
 
 };

@@ -123,7 +123,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	queueX->initQueue(deviceX->logicalDevice);
 	instanceX->initSurface(gWindow->window);
 	swapChainX = new VulkanSwapChain(physicalDeviceX->physicalDevice, instanceX->surface, deviceX->logicalDevice);
-	cmdX = new VulkanCommand(deviceX->logicalDevice, queueX->queueFamilyIndex);
+	cmdX = new VulkanCommand(deviceX->logicalDevice, queueX->queueFamilyIndex, swapChainX->swapChainImages.size());
 	syncX = new VulkanSynchronization(deviceX->logicalDevice);
 	Box* box_01 = new Box(2.0f, 2.0f, 2.0f);
 
@@ -135,11 +135,11 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	);
 	VulkanUberDescriptorSet* descriptorX = new VulkanUberDescriptorSet(deviceX->logicalDevice, descriptorList);
 	VulkanGraphicsPipeline* graphicsPipelineX = new VulkanGraphicsPipeline(physicalDeviceX->physicalDevice, deviceX->logicalDevice,
-		swapChainX->swapChainExtent, swapChainX->selectedSurfaceFormat, 
+		swapChainX, swapChainX->selectedSurfaceFormat, 
 		descriptorX->uberPipelineLayout, box_01, 
 		specialConstantX->specializationInfo);
 	cmdX->buildCommandBuffers(swapChainX, descriptorX->uberPipelineLayout,
-		descriptorX->uberDescSet, graphicsPipelineX->graphicsPipeline, graphicsPipelineX->depthImageView, box_01);
+		descriptorX->uberDescSet, graphicsPipelineX, box_01);
 
 #endif
     return SDL_APP_CONTINUE; // SDL_APP_FAILURE to indicate failure

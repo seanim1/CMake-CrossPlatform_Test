@@ -1,6 +1,6 @@
 #include "VulkanCommand.h"
 
-VulkanCommand::VulkanCommand(VkDevice logicalDevice, uint32_t queueFamilyIndex)
+VulkanCommand::VulkanCommand(VkDevice logicalDevice, uint32_t queueFamilyIndex, uint32_t swapchainImageCount)
 {
     VkCommandPoolCreateInfo cmdPoolInfo{};
     cmdPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -8,13 +8,14 @@ VulkanCommand::VulkanCommand(VkDevice logicalDevice, uint32_t queueFamilyIndex)
     cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     CATCH_ERROR(vkCreateCommandPool(logicalDevice, &cmdPoolInfo, NULL, &cmdPool));
 
-    VkCommandBufferAllocateInfo commandBufferAllocateInfo; memset(&commandBufferAllocateInfo, 0, sizeof(VkCommandBufferAllocateInfo));
+    frameCmdBuffers.resize(swapchainImageCount);
+    VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     commandBufferAllocateInfo.commandPool = cmdPool;
     commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    commandBufferAllocateInfo.commandBufferCount = PRESENT_IMG_COUNT;
+    commandBufferAllocateInfo.commandBufferCount = frameCmdBuffers.size();
     // Command buffer for each frame
-    CATCH_ERROR(vkAllocateCommandBuffers(logicalDevice, &commandBufferAllocateInfo, (VkCommandBuffer*)frameCmdBuffers));
+    CATCH_ERROR(vkAllocateCommandBuffers(logicalDevice, &commandBufferAllocateInfo, frameCmdBuffers.data()));
 
     // Since we use an extension, we need to expliclity load the function pointers for extension related Vulkan commands
     vkCmdBeginRenderingKHR = reinterpret_cast<PFN_vkCmdBeginRenderingKHR>(vkGetDeviceProcAddr(logicalDevice, "vkCmdBeginRenderingKHR"));
@@ -35,40 +36,37 @@ static void init_vkDependencyInfo(VkDependencyInfo* dependencyInfoAddress) {
 
 void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
     VkPipelineLayout uberPipelineLayout, VkDescriptorSet uberDescSet,
-    VkPipeline graphicsPipeline01, VkImageView depthImageView, Geometry* geometry)
+    VulkanGraphicsPipeline* graphicsPipelineX, Geometry* geometry)
 {
-    
-    VkDependencyInfo dependencyInfo_bar; memset(&dependencyInfo_bar, 0, sizeof(VkDependencyInfo));
-
     VkImageSubresourceRange subresourceRange_default;
     subresourceRange_default.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     subresourceRange_default.baseMipLevel = 0;
     subresourceRange_default.levelCount = 1;
     subresourceRange_default.baseArrayLayer = 0;
     subresourceRange_default.layerCount = 1;
-    
-    VkImageMemoryBarrier2 imgBar_ColAtt2None_ColAtt2PresentSrc; memset(&imgBar_ColAtt2None_ColAtt2PresentSrc, 0, sizeof(VkImageMemoryBarrier2));
-    imgBar_ColAtt2None_ColAtt2PresentSrc.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
-    imgBar_ColAtt2None_ColAtt2PresentSrc.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    imgBar_ColAtt2None_ColAtt2PresentSrc.dstStageMask = VK_PIPELINE_STAGE_2_NONE;
-    imgBar_ColAtt2None_ColAtt2PresentSrc.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    imgBar_ColAtt2None_ColAtt2PresentSrc.dstAccessMask = VK_ACCESS_2_NONE;
-    imgBar_ColAtt2None_ColAtt2PresentSrc.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    imgBar_ColAtt2None_ColAtt2PresentSrc.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    imgBar_ColAtt2None_ColAtt2PresentSrc.subresourceRange = subresourceRange_default;
 
-    VkImageMemoryBarrier2 imgBar_None2ColAtt_Undef2ColAtt; memset(&imgBar_None2ColAtt_Undef2ColAtt, 0, sizeof(VkImageMemoryBarrier2));
-    imgBar_None2ColAtt_Undef2ColAtt.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
-    imgBar_None2ColAtt_Undef2ColAtt.srcStageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
-    imgBar_None2ColAtt_Undef2ColAtt.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    imgBar_None2ColAtt_Undef2ColAtt.srcAccessMask = VK_ACCESS_2_NONE;
+    VkImageMemoryBarrier imgBar_None2ColAtt_Undef2ColAtt{};
+    imgBar_None2ColAtt_Undef2ColAtt.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    imgBar_None2ColAtt_Undef2ColAtt.srcAccessMask = VK_ACCESS_NONE;
     imgBar_None2ColAtt_Undef2ColAtt.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     imgBar_None2ColAtt_Undef2ColAtt.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imgBar_None2ColAtt_Undef2ColAtt.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    imgBar_None2ColAtt_Undef2ColAtt.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imgBar_None2ColAtt_Undef2ColAtt.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     imgBar_None2ColAtt_Undef2ColAtt.subresourceRange = subresourceRange_default;
 
+    VkImageMemoryBarrier imgBar_ColAtt2None_ColAtt2PresentSrc{};
+    imgBar_ColAtt2None_ColAtt2PresentSrc.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    imgBar_ColAtt2None_ColAtt2PresentSrc.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    imgBar_ColAtt2None_ColAtt2PresentSrc.dstAccessMask = VK_ACCESS_NONE;
+    imgBar_ColAtt2None_ColAtt2PresentSrc.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    imgBar_ColAtt2None_ColAtt2PresentSrc.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    imgBar_ColAtt2None_ColAtt2PresentSrc.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imgBar_ColAtt2None_ColAtt2PresentSrc.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imgBar_ColAtt2None_ColAtt2PresentSrc.subresourceRange = subresourceRange_default;
+
     VkCommandBuffer frameCommandBuffer{};
-    for (int swapChainImageIndex = 0; swapChainImageIndex < PRESENT_IMG_COUNT; swapChainImageIndex++) {
+    for (int swapChainImageIndex = 0; swapChainImageIndex < frameCmdBuffers.size(); swapChainImageIndex++) {
         frameCommandBuffer = frameCmdBuffers[swapChainImageIndex];
         // Command Buffer State: Initial
         vkResetCommandBuffer(frameCommandBuffer, 0);
@@ -79,48 +77,49 @@ void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
 
         vkCmdBindDescriptorSets(frameCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, uberPipelineLayout, 0, 1, &uberDescSet, 0, nullptr);
 
-        // New structures are used to define the attachments used in dynamic rendering
-        // Color attachment
-        VkRenderingAttachmentInfo colorAttachment{ VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-        colorAttachment.imageView = swapChainX->swapChainImageView[swapChainImageIndex];
-        colorAttachment.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachment.clearValue.color = { 0.0f, 0.0f, 0.2f, 0.0f };
+        imgBar_None2ColAtt_Undef2ColAtt.image = swapChainX->swapChainImages[swapChainImageIndex];
+        //vkCmdPipelineBarrier(
+        //    frameCommandBuffer,
+        //    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+        //    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+        //    0,
+        //    0, nullptr,
+        //    0, nullptr,
+        //    1, &imgBar_None2ColAtt_Undef2ColAtt
+        //);
 
-        // Depth/stencil attachment
-        VkRenderingAttachmentInfo depthAttachment{ VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-        depthAttachment.imageView = depthImageView;
-        depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        depthAttachment.clearValue.depthStencil = { 1.0f, 0 };
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = graphicsPipelineX->renderPass;
+        renderPassInfo.framebuffer = graphicsPipelineX->swapChainFramebuffers[swapChainImageIndex];
+        renderPassInfo.renderArea.offset = { 0, 0 };
+        renderPassInfo.renderArea.extent = swapChainX->swapChainExtent;
 
-        VkRenderingInfo renderingInfo{};
-        renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
-        renderingInfo.renderArea.offset = { 0, 0 };
-        renderingInfo.renderArea.extent = swapChainX->swapChainExtent;
-        renderingInfo.layerCount = 1;
-        renderingInfo.colorAttachmentCount = 1;
-        renderingInfo.pColorAttachments = &colorAttachment;
-        renderingInfo.pDepthAttachment = &depthAttachment; // No depth
-        renderingInfo.pStencilAttachment = nullptr;
+        std::array<VkClearValue, 2> clearValues{};
+        clearValues[0].color = { 0.0f, 0.0f, 0.15f, 1.0f };
+        clearValues[1].depthStencil = { 1.0f, 0 };
 
-        /*Bar*/imgBar_None2ColAtt_Undef2ColAtt.image = swapChainX->swapChainImages[swapChainImageIndex]; init_vkDependencyInfo(&dependencyInfo_bar);
-        /*Bar*/dependencyInfo_bar.imageMemoryBarrierCount = 1; dependencyInfo_bar.pImageMemoryBarriers = &imgBar_None2ColAtt_Undef2ColAtt;
-        /*Bar*/vkCmdPipelineBarrier2KHR(frameCommandBuffer, &dependencyInfo_bar);
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
 
-        vkCmdBeginRenderingKHR(frameCmdBuffers[swapChainImageIndex], &renderingInfo);
+        vkCmdBeginRenderPass(frameCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        vkCmdBindPipeline(frameCmdBuffers[swapChainImageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline01);
+        vkCmdBindPipeline(frameCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipelineX->graphicsPipeline);
 
-        vkCmdDraw(frameCmdBuffers[swapChainImageIndex], 3, 1, 0, 0);
+        vkCmdDraw(frameCommandBuffer, 3, 1, 0, 0);
 
-        vkCmdEndRenderingKHR(frameCmdBuffers[swapChainImageIndex]);
+        vkCmdEndRenderPass(frameCommandBuffer);
 
-        /*Bar*/imgBar_ColAtt2None_ColAtt2PresentSrc.image = swapChainX->swapChainImages[swapChainImageIndex]; init_vkDependencyInfo(&dependencyInfo_bar);
-        /*Bar*/dependencyInfo_bar.imageMemoryBarrierCount = 1; dependencyInfo_bar.pImageMemoryBarriers = &imgBar_ColAtt2None_ColAtt2PresentSrc;
-        /*Bar*/vkCmdPipelineBarrier2KHR(frameCommandBuffer, &dependencyInfo_bar);
+        imgBar_ColAtt2None_ColAtt2PresentSrc.image = swapChainX->swapChainImages[swapChainImageIndex];
+        //vkCmdPipelineBarrier(
+        //    frameCommandBuffer,
+        //    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,  // srcStageMask
+        //    VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,           // dstStageMask
+        //    0,
+        //    0, nullptr,
+        //    0, nullptr,
+        //    1, &imgBar_ColAtt2None_ColAtt2PresentSrc
+        //);
 
         if (vkEndCommandBuffer(frameCmdBuffers[swapChainImageIndex]) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer!");

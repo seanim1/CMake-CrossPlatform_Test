@@ -10,5 +10,4 @@ public:
     ~VulkanDescBuffer() override = default;
 
 protected:
-    void createBuffer(VkDevice logicalDevice, VkPhysicalDevice physicalDevice);
 };

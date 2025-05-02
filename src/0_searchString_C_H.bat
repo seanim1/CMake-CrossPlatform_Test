@@ -1,2 +1,2 @@
-findstr /S /I /N "file!" *.cpp
+findstr /S /I /N "SDL_Log" *.cpp
 pause

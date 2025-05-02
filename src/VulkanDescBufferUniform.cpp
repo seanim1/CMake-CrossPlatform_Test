@@ -1,4 +1,5 @@
 #include "VulkanDescBufferUniform.h"
+#include "VulkanResourceHelpers.h"
 
 VulkanDescBufferUniform::VulkanDescBufferUniform(void* cpuData, VkDeviceSize cpuDataSize)
 {
@@ -35,7 +36,10 @@ VulkanDescBufferUniform::VulkanDescBufferUniform(void* cpuData, VkDeviceSize cpu
 
 void VulkanDescBufferUniform::allocateUniformBuffer(VkDevice logicalDevice, VkPhysicalDevice physicalDevice)
 {
-    createBuffer(logicalDevice, physicalDevice);
+    VulkanResourceHelper::createBuffer(logicalDevice, physicalDevice, cpuDataSize, usageFlags, memoryPropertyFlags, this->buffer, this->deviceMemory);
+    // Descriptor for the actual buffer resource
+    this->descriptorBufferInfo.buffer = this->buffer;
+    this->descriptorBufferInfo.range = VK_WHOLE_SIZE;
     // Map persistent
     (vkMapMemory(logicalDevice, this->deviceMemory, 0, VK_WHOLE_SIZE, 0, &this->addrCPU_mapped_to_memoryGPU));
     update();
@@ -45,5 +49,3 @@ void VulkanDescBufferUniform::update()
 {
     memcpy(this->addrCPU_mapped_to_memoryGPU, this->cpuData, this->cpuDataSize);
 }
-
-

@@ -7,10 +7,13 @@ VulkanSwapChain::VulkanSwapChain(VkPhysicalDevice physicalDevice, VkSurfaceKHR s
 	(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfCaps));
 	swapChainExtent = surfCaps.currentExtent; // Swapchain image size = Extent
 	// Determine the number of images
-	uint32_t swapchainImageCount = surfCaps.minImageCount; // I noticed this is 3 on Android phone. 2 on all the other platforms.
+	uint32_t swapchainImageCount = surfCaps.minImageCount; // I noticed this is 3 or 4 on Android phone. 2 on all the other platforms.
 	if ((surfCaps.maxImageCount > 0) && (swapchainImageCount > surfCaps.maxImageCount)) {
 		swapchainImageCount = surfCaps.maxImageCount;
 	}
+	swapChainImages.resize(swapchainImageCount);
+	swapChainImageView.resize(swapchainImageCount);
+	SDL_Log("Minimum surface capabilities: %d", swapchainImageCount);
 	//	2. Select a Surface Format (pixel format, color space)
 	uint32_t formatCount;
 	(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, NULL));
@@ -100,12 +103,12 @@ VulkanSwapChain::VulkanSwapChain(VkPhysicalDevice physicalDevice, VkSurfaceKHR s
 	swapchainCI.imageUsage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 	// Enable transfer source on swap chain images if supported
 	if (surfCaps.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) swapchainCI.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-	// Enable transfer destination on swap chain images if supported
+	// Enable transfer destination on swap chain images if supported 
 	if (surfCaps.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) swapchainCI.imageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	(vkCreateSwapchainKHR(logicalDevice, &swapchainCI, NULL, &swapChain)); // create a swapchain for our GPU
 
 	(vkGetSwapchainImagesKHR(logicalDevice, swapChain, &swapchainImageCount, NULL));
-	(vkGetSwapchainImagesKHR(logicalDevice, swapChain, &swapchainImageCount, swapChainImages));
+	(vkGetSwapchainImagesKHR(logicalDevice, swapChain, &swapchainImageCount, swapChainImages.data()));
 	for (int i = 0; i < swapchainImageCount; i++) {
 		VkImageViewCreateInfo colorAttachmentView; memset(&colorAttachmentView, 0, sizeof(VkImageViewCreateInfo));
 		colorAttachmentView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

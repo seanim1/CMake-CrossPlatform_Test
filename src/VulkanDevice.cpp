@@ -17,13 +17,13 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamily
 		for (const auto& supportedExtension : supportedDeviceExtensions) {
 			if (strcmp(extension, supportedExtension.extensionName) == 0) {
 				enabledDeviceExtensions.push_back(extension);
-				std::cout << "\t Device Extension '" << extension << "' is supported.\n";
+				SDL_Log("\t Device Extension '%s' is supported.\n", extension);
 				found = true;
 				break;
 			}
 		}
 		if (!found) {
-			std::cout << "\t Device Extension '" << extension << "' is NOT supported.\n";
+			SDL_Log("\t Device Extension '%s' is supported.\n", extension);
 		}
 	}
 	VkDeviceCreateInfo deviceCreateInfo; memset(&deviceCreateInfo, 0, sizeof(VkDeviceCreateInfo));
@@ -96,49 +96,49 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamily
 	// Step 3: Query the physical device for supported features
 	vkGetPhysicalDeviceFeatures2(physicalDevice, &deviceFeatures2);
 
-	printf("\t VkPhysicalDeviceFeatures2 Queries:\n");
+	SDL_Log("\t VkPhysicalDeviceFeatures2 Queries:\n");
 	// Step 4: Check if bufferDeviceAddressCaptureReplay is supported
 	if (bufferDeviceAddressFeatures.bufferDeviceAddressCaptureReplay) {
-		printf("\t\t bufferDeviceAddressCaptureReplay is supported.\n");
+		SDL_Log("\t\t bufferDeviceAddressCaptureReplay is supported.\n");
 	}
 	else {
-		printf("\t\t bufferDeviceAddressCaptureReplay is NOT supported.\n");
+		SDL_Log("\t\t bufferDeviceAddressCaptureReplay is NOT supported.\n");
 	}
 	if (synchronization2Features.synchronization2) {
-		printf("\t\t synchronization2 is supported.\n");
+		SDL_Log("\t\t synchronization2 is supported.\n");
 	}
 	else {
-		printf("\t\t synchronization2 is NOT supported.\n");
+		SDL_Log("\t\t synchronization2 is NOT supported.\n");
 	}
 	if (synchronization2Features.synchronization2) {
 		deviceCreateInfo.pNext = &deviceFeatures2;
 	}
 	if (storage8bitFeatures.uniformAndStorageBuffer8BitAccess && storage16bitFeatures.storageBuffer16BitAccess) {
-		printf("\t\t 8-bit and 16-bit storage features are supported.\n");
+		SDL_Log("\t\t 8-bit and 16-bit storage features are supported.\n");
 	}
 	else {
-		printf("\t\t 8-bit or 16-bit storage features are not supported.\n");
+		SDL_Log("\t\t 8-bit or 16-bit storage features are not supported.\n");
 	}
 	if (atomicFloatFeatures.shaderImageFloat32AtomicAdd && atomicFloatFeatures.shaderImageFloat32Atomics) {
-		printf("\t\t shaderImageFloat32AtomicAdd is supported.\n");
+		SDL_Log("\t\t shaderImageFloat32AtomicAdd is supported.\n");
 	}
 	else {
-		printf("\t\t shaderImageFloat32AtomicAdd is not supported.\n");
+		SDL_Log("\t\t shaderImageFloat32AtomicAdd is not supported.\n");
 	}
 	if (atomicFloat2Features.shaderBufferFloat16AtomicAdd) {
-		printf("\t\t shaderBufferFloat16AtomicAdd is supported.\n");
+		SDL_Log("\t\t shaderBufferFloat16AtomicAdd is supported.\n");
 	}
 	else {
-		printf("\t\t shaderBufferFloat16AtomicAdd is not supported.\n");
+		SDL_Log("\t\t shaderBufferFloat16AtomicAdd is not supported.\n");
 	}
 	if (dynamicRenderingFeatures.dynamicRendering) {
-		printf("\t\t dynamicRendering is supported.\n");
+		SDL_Log("\t\t dynamicRendering is supported.\n");
 	}
 	else {
-		printf("\t\t dynamicRendering is not supported.\n");
+		SDL_Log("\t\t dynamicRendering is not supported.\n");
 	}
 	VkResult result = vkCreateDevice(physicalDevice, &deviceCreateInfo, NULL, &logicalDevice);
 	if (result != VK_SUCCESS) {
-		printf("Failed to create Vulkan Device! Error code: %d\n", result);
+		SDL_Log("Failed to create Vulkan Device! Error code: %d\n", result);
 	}
 }
