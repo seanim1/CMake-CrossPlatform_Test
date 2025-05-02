@@ -73,7 +73,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	gCamera = new GameCamera(60.0f, gWindow->dimension.x / static_cast<float>(gWindow->dimension.y), 0.1f, 100.0f);
 	gInput = new GameInput();
     gTimer = new GameTimer();
-
+	//gCamera->SetPosition(glm::vec3(0., 1., 1.));
 #ifdef USE_GPU
 	std::vector<const char*> requestingInstanceExtensions = {
 	VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
