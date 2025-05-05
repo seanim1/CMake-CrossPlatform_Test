@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.h>
 #include <cstring>
 #include <vector>
+#include "VulkanResourceHelpers.h"
 
 class VulkanDesc {
 public:
@@ -24,7 +25,7 @@ public:
     static std::vector<VkDescriptorPoolSize> descriptorPoolSizes;
 
     // The data common to both Buffer and Image (should be initalized before allocating device memory)
-    void* cpuData; // CPU data
+    const void* cpuData; // CPU data
     VkDeviceSize cpuDataSize; // Data size
     VkBufferUsageFlags usageFlags;
     VkMemoryPropertyFlags memoryPropertyFlags;

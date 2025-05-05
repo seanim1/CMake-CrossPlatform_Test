@@ -1,7 +1,6 @@
 #include "VulkanDescBufferUniform.h"
 
-VulkanDescBufferUniform::VulkanDescBufferUniform(void* cpuData, VkDeviceSize cpuDataSize,
-    VkDevice logicalDevice, VkPhysicalDevice physicalDevice)
+VulkanDescBufferUniform::VulkanDescBufferUniform(void* cpuData, VkDeviceSize cpuDataSize)
 {
 
     this->cpuData = cpuData;
@@ -31,6 +30,7 @@ VulkanDescBufferUniform::VulkanDescBufferUniform(void* cpuData, VkDeviceSize cpu
     if (!found) {
         descriptorPoolSizes.push_back({ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1 });
     }
+
 }
 
 void VulkanDescBufferUniform::allocateUniformBuffer(VkDevice logicalDevice, VkPhysicalDevice physicalDevice)

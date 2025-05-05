@@ -36,7 +36,8 @@ static void init_vkDependencyInfo(VkDependencyInfo* dependencyInfoAddress) {
 
 void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
     VkPipelineLayout uberPipelineLayout, VkDescriptorSet uberDescSet,
-    VulkanGraphicsPipeline* graphicsPipelineX, Geometry* geometry)
+    VulkanGraphicsPipeline* graphicsPipelineX, 
+    VkBuffer vertexBuffer, VkBuffer indexBuffer, uint32_t indexCount)
 {
     VkImageSubresourceRange subresourceRange_default;
     subresourceRange_default.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -106,6 +107,14 @@ void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
 
         vkCmdBindPipeline(frameCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipelineX->graphicsPipeline);
 
+
+        VkBuffer vertexBuffers[] = { vertexBuffer };
+        VkDeviceSize offsets[] = { 0 };
+        vkCmdBindVertexBuffers(frameCmdBuffers[swapChainImageIndex], 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(frameCmdBuffers[swapChainImageIndex], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        
+        vkCmdDrawIndexed(frameCmdBuffers[swapChainImageIndex], indexCount, 1, 0, 0, 0);
+
         vkCmdDraw(frameCommandBuffer, 3, 1, 0, 0);
 
         vkCmdEndRenderPass(frameCommandBuffer);
@@ -125,13 +134,5 @@ void VulkanCommand::buildCommandBuffers(VulkanSwapChain* swapChainX,
             throw std::runtime_error("failed to record command buffer!");
         }
     }
-    //VkBuffer vertexBuffers[] = { vertexBuffer };
-    //VkDeviceSize offsets[] = { 0 };
-    //vkCmdBindVertexBuffers(frameCmdBuffers[swapChainImageIndex], 0, 1, vertexBuffers, offsets);
-    //
-    //vkCmdBindIndexBuffer(frameCmdBuffers[swapChainImageIndex], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-    //
-    //
-    //vkCmdDrawIndexed(frameCmdBuffers[swapChainImageIndex], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
 }

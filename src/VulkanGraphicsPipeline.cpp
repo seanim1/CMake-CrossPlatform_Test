@@ -69,7 +69,9 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkPhysicalDevice physicalDevice, 
 	VkPipelineLayout uberPipelineLayout, Geometry* geometry,
 	VkSpecializationInfo specializationInfo)
 {
-	VkAttachmentDescription colorAttachment; memset(&colorAttachment, 0, sizeof(VkAttachmentDescription)); // Color attachment
+	VkFormat depthStencilFormat = VulkanResourceHelper::findDepthFormat(physicalDevice);
+
+	VkAttachmentDescription colorAttachment{}; // Color attachment
 	colorAttachment.format = selectedSurfaceFormat.format;
 	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -82,31 +84,60 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkPhysicalDevice physicalDevice, 
 		transition from UNDEFINED -> COLOR_ATTACHMENT_OPTIMAL at render pass start, and
 		COLOR_ATTACHMENT_OPTIMAL -> PRESENT_SRC_KHR at render pass end.
 	*/
-	VkAttachmentReference colorAttachmentReference; memset(&colorAttachmentReference, 0, sizeof(VkAttachmentReference));
+	VkAttachmentReference colorAttachmentReference{};
 	colorAttachmentReference.attachment = 0;  // Index of the attachment in the array
 	colorAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-	VkSubpassDescription subpass; memset(&subpass, 0, sizeof(VkSubpassDescription));
+	// Depth - stencil attachment
+	VkAttachmentDescription depthStencilAttachment{};
+	depthStencilAttachment.format = depthStencilFormat; // e.g., VK_FORMAT_D24_UNORM_S8_UINT
+	depthStencilAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	depthStencilAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depthStencilAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthStencilAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depthStencilAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthStencilAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	depthStencilAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference depthStencilAttachmentRef{};
+	depthStencilAttachmentRef.attachment = 1;
+	depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass{};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentReference;
+	subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
 
-	VkRenderPassCreateInfo renderPassInfo; memset(&renderPassInfo, 0, sizeof(VkRenderPassCreateInfo));
+	std::array<VkAttachmentDescription, 2> attachments = {
+		colorAttachment, depthStencilAttachment
+	};
+
+	VkRenderPassCreateInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = 1;
-	renderPassInfo.pAttachments = &colorAttachment;
+	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());;
+	renderPassInfo.pAttachments = attachments.data();
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
 
 	CATCH_ERROR(vkCreateRenderPass(logicalDevice, &renderPassInfo, 0, &renderPass));
 
+	VulkanResourceHelper::createImage(logicalDevice, physicalDevice, swapChainX->swapChainExtent.width, swapChainX->swapChainExtent.height, depthStencilFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
+	depthImageView = VulkanResourceHelper::createImageView(logicalDevice, depthImage, depthStencilFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
 	swapChainFramebuffers.resize(swapChainX->swapChainImageView.size());
 	for (int i = 0; i < swapChainFramebuffers.size(); i++) {
+		std::array<VkImageView, 2> attachments{};
+		// Color attachment is the view of the swapchain image
+		attachments[0] = swapChainX->swapChainImageView[i];
+		// Depth/Stencil attachment is the same for all frame buffers due to how depth works with current GPUs
+		attachments[1] = depthImageView;
+
 		VkFramebufferCreateInfo frameBufferCreateInfo{};
 		frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		frameBufferCreateInfo.renderPass = renderPass;
-		frameBufferCreateInfo.attachmentCount = 1;
-		frameBufferCreateInfo.pAttachments = &swapChainX->swapChainImageView[i];
+		frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		frameBufferCreateInfo.pAttachments = attachments.data();
 		frameBufferCreateInfo.width = swapChainX->swapChainExtent.width;
 		frameBufferCreateInfo.height = swapChainX->swapChainExtent.height;
 		frameBufferCreateInfo.layers = 1;
@@ -164,10 +195,10 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkPhysicalDevice physicalDevice, 
 	/* Interleaved Vertex attribute setup: [Pos, Normal, Pos, Normal, Pos, Normal] */
 	VkPipelineVertexInputStateCreateInfo vertexInputState{};
 	vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	//vertexInputState.vertexBindingDescriptionCount = //static_cast<uint32_t>(geometry->getBindingDescriptions().size());
-	//vertexInputState.pVertexBindingDescriptions = geometry->getBindingDescriptions().data();
-	//vertexInputState.vertexAttributeDescriptionCount = //static_cast<uint32_t>(geometry->getAttributeDescriptions().size());
-	//vertexInputState.pVertexAttributeDescriptions = geometry->getAttributeDescriptions().data();
+	vertexInputState.vertexBindingDescriptionCount = static_cast<uint32_t>(geometry->getBindingDescriptions().size());
+	vertexInputState.pVertexBindingDescriptions = geometry->getBindingDescriptions().data();
+	vertexInputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(geometry->getAttributeDescriptions().size());
+	vertexInputState.pVertexAttributeDescriptions = geometry->getAttributeDescriptions().data();
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -201,7 +232,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkPhysicalDevice physicalDevice, 
 	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizer.lineWidth = 1.0f;
 	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
 
 	// (We don't need it but, required, otherwise validation error)
@@ -232,11 +263,6 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkPhysicalDevice physicalDevice, 
 	colorBlending.blendConstants[1] = 0.0f;
 	colorBlending.blendConstants[2] = 0.0f;
 	colorBlending.blendConstants[3] = 0.0f;
-
-	VkFormat depthFormat = VulkanResourceHelper::findDepthFormat(physicalDevice);
-
-	VulkanResourceHelper::createImage(logicalDevice, physicalDevice, swapChainX->swapChainExtent.width, swapChainX->swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
-	depthImageView = VulkanResourceHelper::createImageView(logicalDevice, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 
 	// Dynamic rendering attachment formats (there is no longer a need for VkRenderPass and VkFramebuffer)
 	VkPipelineRenderingCreateInfo dynamicRendering{};
