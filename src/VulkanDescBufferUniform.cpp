@@ -10,7 +10,7 @@ VulkanDescBufferUniform::VulkanDescBufferUniform(void* cpuData, VkDeviceSize cpu
     this->memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     
     uberSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uberSetLayoutBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT | VK_SHADER_STAGE_VERTEX_BIT;
+    uberSetLayoutBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT | VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     uberSetLayoutBinding.binding = this->numDescriptors;
     uberSetLayoutBinding.descriptorCount = 1; // we assume "1 binding = 1 descriptor"
 

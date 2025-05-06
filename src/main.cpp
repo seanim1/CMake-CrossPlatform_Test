@@ -64,6 +64,8 @@ struct CameraMatrices {
 	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 proj;
+	glm::vec3 camPos;
+	glm::vec3 camDir;
 	float elapsedTime;
 };
 static CameraMatrices cam;
@@ -71,7 +73,7 @@ static Box* box_01;
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
     gWindow = new GameWindow(1280, 720, "Cross-Platform GUI");
-    gScreen = new GameScreen(gWindow->dimension.x / 10, gWindow->dimension.y / 10, gWindow->renderer);
+    gScreen = new GameScreen(gWindow->dimension.x, gWindow->dimension.y, gWindow->renderer);
 	gCamera = new GameCamera(60.0f, gWindow->dimension.x / static_cast<float>(gWindow->dimension.y), 0.1f, 100.0f);
 	gInput = new GameInput();
     gTimer = new GameTimer();
@@ -170,11 +172,16 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
 SDL_AppResult SDL_AppIterate(void* appstate) {
     gTimer->StartTimer();
     gInput->Update(gCamera);
-	box_01->setRotation(glm::vec3(0.5, gTimer->elapsedTime * 0.4, 1.0));
+	//box_01->setRotation(glm::vec3(0.5, gTimer->elapsedTime * 0.4, 1.0));
+	//box_01->setScale(glm::vec3(0.4 * cos(gTimer->elapsedTime) + 1.2));
+	box_01->setPosition(glm::vec3(1.0*cos(gTimer->elapsedTime), 0., 0.));
+	//box_01->setPosition(glm::vec3(0.01, 0., 0.));
 #ifdef USE_GPU
 	cam.model = box_01->getModelMatrix();
 	cam.view = gCamera->GetViewMatrix();
 	cam.proj = gCamera->GetProjectionMatrix();
+	cam.camPos = gCamera->GetDirection();
+	cam.camDir = gCamera->GetPosition();
 	cam.elapsedTime = gTimer->elapsedTime;
 	((VulkanDescBufferUniform*)descriptorList[0])->update();
     // Vulkan rendering goes here
