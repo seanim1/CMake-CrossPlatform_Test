@@ -16,16 +16,18 @@ Box::Box(float width, float height, float depth) {
 
     // Set up attribute descriptions
     // Position
-    attributeDescriptions.resize(2);
-    attributeDescriptions[0].binding = 0;
-    attributeDescriptions[0].location = 0;
-    attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[0].offset = offsetof(Vertex, pos);
-    // Normal
-    attributeDescriptions[1].binding = 0;
-    attributeDescriptions[1].location = 1;
-    attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[1].offset = offsetof(Vertex, normal);
+    VkVertexInputAttributeDescription iaDesc{};
+    iaDesc.binding = 0;
+    iaDesc.location = 0;
+    iaDesc.format = VK_FORMAT_R32G32B32_SFLOAT;
+    iaDesc.offset = offsetof(Vertex, pos);
+    attributeDescriptions.push_back(iaDesc);
+    // Color
+    iaDesc.binding = 0;
+    iaDesc.location = 1;
+    iaDesc.format = VK_FORMAT_R32_SFLOAT;
+    iaDesc.offset = offsetof(Vertex, hue);
+    attributeDescriptions.push_back(iaDesc);
 }
 
 void Box::buildBox(float width, float height, float depth) {
@@ -33,29 +35,47 @@ void Box::buildBox(float width, float height, float depth) {
     float h = height / 2.0f;
     float d = depth / 2.0f;
 
-    glm::vec3 p[] = {
-        {-w, -h, -d}, {w, -h, -d}, {w,  h, -d}, {-w,  h, -d}, // back
-        {-w, -h,  d}, {w, -h,  d}, {w,  h,  d}, {-w,  h,  d}  // front
+#define BOX_VERTEX_COUNT 8
+    float positions[BOX_VERTEX_COUNT][3] = {
+        {-w, -h, -d}, {w, -h, -d}, {w,  h, -d}, {-w,  h, -d}, // front
+        {-w, -h,  d}, {w, -h,  d}, {w,  h,  d}, {-w,  h,  d}   // back
+    };
+    for (int i = 0; i < BOX_VERTEX_COUNT; ++i) {
+        Vertex vert;
+        vert.pos = glm::vec3(positions[i][0], positions[i][1], positions[i][2]);
+        vert.hue = ((float)i / BOX_VERTEX_COUNT);
+        vertices.push_back(vert);
+    }
+    //uint32_t indexList[6][6] = {
+    //    {0, 3, 1, 1,3,2}, // front
+    //    {0,1,4,4,1,5}, // top
+    //    {0,3,4,4,3,7}, // left
+    //    {4,7,5,5,7,6}, // back
+    //    {2,6,3,3,6,7}, // bottom
+    //    {1,2,6,6,5,1}  // right
+    //};
+    //// Clockwise version
+    //uint32_t indexList[6][6] = {
+    //{0, 1, 3, 1, 2, 3}, // front face  (Z = -d)
+    //{1, 5, 2, 5, 6, 2}, // right face  (X = +w)
+    //{5, 4, 6, 4, 7, 6}, // back face   (Z = +d)
+    //{4, 0, 7, 0, 3, 7}, // left face   (X = -w)
+    //{3, 2, 7, 2, 6, 7}, // top face    (Y = +h)
+    //{4, 5, 0, 5, 1, 0}  // bottom face (Y = -h)
+    //};
+    // Counter-Clockwise version
+    uint32_t indexList[6][6] = {
+    {0, 3, 1, 1, 3, 2}, // front face  (Z = -d)
+    {1, 2, 5, 5, 2, 6}, // right face  (X = +w)
+    {5, 6, 4, 4, 6, 7}, // back face   (Z = +d)
+    {4, 7, 0, 0, 7, 3}, // left face   (X = -w)
+    {3, 7, 2, 2, 7, 6}, // top face    (Y = +h)
+    {4, 0, 5, 5, 0, 1}  // bottom face (Y = -h)
     };
 
-    glm::vec3 n[] = {
-        {0, 0, -1}, {0, 0, 1}, {1, 0, 0},
-        {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}
-    };
-
-    std::array<std::array<int, 6>, 6> faces = { {
-        {{0, 1, 2, 2, 3, 0}}, // back
-        {{4, 5, 6, 6, 7, 4}}, // front
-        {{1, 5, 6, 6, 2, 1}}, // right
-        {{4, 0, 3, 3, 7, 4}}, // left
-        {{3, 2, 6, 6, 7, 3}}, // top
-        {{4, 5, 1, 1, 0, 4}}  // bottom
-    } };
-
-    for (int face = 0; face < 6; ++face) {
-        for (int i = 0; i < 6; ++i) {
-            vertices.push_back({ p[faces[face][i]], n[face] });
-            indices.push_back(static_cast<uint32_t>(indices.size()));
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            indices.push_back(indexList[i][j]);
         }
     }
 }

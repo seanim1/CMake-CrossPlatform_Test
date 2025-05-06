@@ -1,15 +1,17 @@
 
 #pragma once
+#include "Transformation.h"
 #include "Global.h"
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 
 struct Vertex {
     glm::vec3 pos;
-    glm::vec3 normal;
+    float hue;
+    //glm::vec3 normal; // I would need 24 vertices instead of just 8 if I wanted a flat shaded cube
 };
 
-class Geometry {
+class Geometry : public Transformation {
 public:
     virtual ~Geometry() = default;
 
@@ -23,4 +25,3 @@ public:
     virtual const std::vector<VkVertexInputAttributeDescription>& getAttributeDescriptions() const = 0;
     virtual const std::vector<VkVertexInputBindingDescription>& getBindingDescriptions() const = 0;
 };
-

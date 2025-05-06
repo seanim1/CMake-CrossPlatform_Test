@@ -43,4 +43,7 @@ namespace VulkanResourceHelper {
     void createBuffer(VkDevice logicalDevice, VkPhysicalDevice physicalDevice,
         VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
         VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+
+    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
+        VkDevice logicalDevice, VkCommandPool commandPool, VkQueue graphicsQueue);
 }

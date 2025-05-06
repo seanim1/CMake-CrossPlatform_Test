@@ -7,7 +7,12 @@ public:
     VkDescriptorBufferInfo descriptorBufferInfo{};
 
     VulkanDescBuffer() = default;
+    VulkanDescBuffer(VkDevice logicalDevice, VkPhysicalDevice physicalDevice,
+        const void* cpuData, VkDeviceSize cpuDataSize,
+        VkBufferUsageFlags usageFlags, VkDescriptorType descriptorType, VkShaderStageFlags stageFlags);
     ~VulkanDescBuffer() override = default;
 
-protected:
+    void allocate(VkDevice logicalDevice, VkPhysicalDevice physicalDevice,
+        VkCommandPool commandPool, VkQueue graphicsQueue);
+
 };

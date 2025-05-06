@@ -61,11 +61,13 @@ static VulkanCommand* cmdX = nullptr;
 static VulkanSwapChain* swapChainX = nullptr;
 static std::vector<VulkanDesc*> descriptorList;
 struct CameraMatrices {
+	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 proj;
 	float elapsedTime;
 };
 static CameraMatrices cam;
+static Box* box_01;
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
     gWindow = new GameWindow(1280, 720, "Cross-Platform GUI");
@@ -73,7 +75,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	gCamera = new GameCamera(60.0f, gWindow->dimension.x / static_cast<float>(gWindow->dimension.y), 0.1f, 100.0f);
 	gInput = new GameInput();
     gTimer = new GameTimer();
-	//gCamera->SetPosition(glm::vec3(0., 1., 1.));
+	gCamera->SetPosition(glm::vec3(2., 2., -2.));
 #ifdef USE_GPU
 	std::vector<const char*> requestingInstanceExtensions = {
 	VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
@@ -125,10 +127,19 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	swapChainX = new VulkanSwapChain(physicalDeviceX->physicalDevice, instanceX->surface, deviceX->logicalDevice);
 	cmdX = new VulkanCommand(deviceX->logicalDevice, queueX->queueFamilyIndex, swapChainX->swapChainImages.size());
 	syncX = new VulkanSynchronization(deviceX->logicalDevice);
-	Box* box_01 = new Box(2.0f, 2.0f, 2.0f);
+	box_01 = new Box(1.7f, 1.7f, 1.7f);
+	descriptorList.push_back( new VulkanDescBufferUniform(&cam, sizeof(cam), deviceX->logicalDevice, physicalDeviceX->physicalDevice));
+	descriptorList.push_back( new VulkanDescBuffer(deviceX->logicalDevice, physicalDeviceX->physicalDevice,
+		box_01->getVertexData(), box_01->getVertexCount() * box_01->getVertexStride(), 
+		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT | VK_SHADER_STAGE_VERTEX_BIT));
+	descriptorList.push_back(new VulkanDescBuffer(deviceX->logicalDevice, physicalDeviceX->physicalDevice,
+		box_01->getIndexData(), box_01->getIndexCount() * sizeof(box_01->getIndexData()[0]),
+		VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT));
 
-	descriptorList.push_back( new VulkanDescBufferUniform(&cam, sizeof(cam)) );
 	((VulkanDescBufferUniform*)descriptorList[0])->allocateUniformBuffer(deviceX->logicalDevice, physicalDeviceX->physicalDevice);
+	((VulkanDescBuffer*)descriptorList[1])->allocate(deviceX->logicalDevice, physicalDeviceX->physicalDevice, cmdX->cmdPool, queueX->queue);
+	((VulkanDescBuffer*)descriptorList[2])->allocate(deviceX->logicalDevice, physicalDeviceX->physicalDevice, cmdX->cmdPool, queueX->queue);
+	
 	VulkanSpecializationConstant* specialConstantX = new VulkanSpecializationConstant(
 		gScreen->dimension.x,
 		gScreen->dimension.y
@@ -139,7 +150,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 		descriptorX->uberPipelineLayout, box_01, 
 		specialConstantX->specializationInfo);
 	cmdX->buildCommandBuffers(swapChainX, descriptorX->uberPipelineLayout,
-		descriptorX->uberDescSet, graphicsPipelineX, box_01);
+		descriptorX->uberDescSet, graphicsPipelineX, 
+		((VulkanDescBuffer*)descriptorList[1])->buffer, ((VulkanDescBuffer*)descriptorList[2])->buffer, box_01->getIndexCount());
 
 #endif
     return SDL_APP_CONTINUE; // SDL_APP_FAILURE to indicate failure
@@ -158,8 +170,9 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
 SDL_AppResult SDL_AppIterate(void* appstate) {
     gTimer->StartTimer();
     gInput->Update(gCamera);
-
+	box_01->setRotation(glm::vec3(0.5, gTimer->elapsedTime * 0.4, 1.0));
 #ifdef USE_GPU
+	cam.model = box_01->getModelMatrix();
 	cam.view = gCamera->GetViewMatrix();
 	cam.proj = gCamera->GetProjectionMatrix();
 	cam.elapsedTime = gTimer->elapsedTime;

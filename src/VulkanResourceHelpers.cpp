@@ -1,6 +1,40 @@
 #include "VulkanResourceHelpers.h"
 #include <stdexcept>
 
+// From VulkanTutorial
+static VkCommandBuffer beginSingleTimeCommands(VkCommandPool commandPool, VkDevice logicalDevice) {
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    return commandBuffer;
+}
+static void endSingleTimeCommands(VkCommandBuffer commandBuffer, VkQueue graphicsQueue,
+    VkDevice logicalDevice, VkCommandPool commandPool) {
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(graphicsQueue);
+
+    vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
+}
+
 namespace VulkanResourceHelper {
 
     VkFormat findSupportedFormat(VkPhysicalDevice physicalDevice, const std::vector<VkFormat>& candidates,
@@ -125,5 +159,15 @@ namespace VulkanResourceHelper {
         // bind GPU memory to a buffer object (Buffer <- GPU memory)
         vkBindBufferMemory(logicalDevice, buffer, bufferMemory, 0);
     }
+    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
+        VkDevice logicalDevice, VkCommandPool commandPool, VkQueue graphicsQueue) {
 
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands(commandPool, logicalDevice);
+
+        VkBufferCopy copyRegion{};
+        copyRegion.size = size;
+        vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+        endSingleTimeCommands(commandBuffer, graphicsQueue, logicalDevice, commandPool);
+    }
 }
