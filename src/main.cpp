@@ -64,9 +64,9 @@ struct CameraMatrices {
 	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 proj;
-	glm::vec3 camPos;
-	glm::vec3 camDir;
+	glm::vec3 camPos; // may need to be padded
 	float elapsedTime;
+	glm::vec3 camDir;
 };
 static CameraMatrices cam;
 static Box* box_01;
@@ -77,7 +77,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	gCamera = new GameCamera(60.0f, gWindow->dimension.x / static_cast<float>(gWindow->dimension.y), 0.1f, 100.0f);
 	gInput = new GameInput();
     gTimer = new GameTimer();
-	gCamera->SetPosition(glm::vec3(2., 2., -2.));
+	gCamera->SetPosition(glm::vec3(0., 0., -3.));
 #ifdef USE_GPU
 	std::vector<const char*> requestingInstanceExtensions = {
 	VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
@@ -129,7 +129,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	swapChainX = new VulkanSwapChain(physicalDeviceX->physicalDevice, instanceX->surface, deviceX->logicalDevice);
 	cmdX = new VulkanCommand(deviceX->logicalDevice, queueX->queueFamilyIndex, swapChainX->swapChainImages.size());
 	syncX = new VulkanSynchronization(deviceX->logicalDevice);
-	box_01 = new Box(1.7f, 1.7f, 1.7f);
+	box_01 = new Box(1.5f, 1.5f, 1.5f);
 	descriptorList.push_back( new VulkanDescBufferUniform(&cam, sizeof(cam), deviceX->logicalDevice, physicalDeviceX->physicalDevice));
 	descriptorList.push_back( new VulkanDescBuffer(deviceX->logicalDevice, physicalDeviceX->physicalDevice,
 		box_01->getVertexData(), box_01->getVertexCount() * box_01->getVertexStride(), 
@@ -172,16 +172,18 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
 SDL_AppResult SDL_AppIterate(void* appstate) {
     gTimer->StartTimer();
     gInput->Update(gCamera);
-	//box_01->setRotation(glm::vec3(0.5, gTimer->elapsedTime * 0.4, 1.0));
+	box_01->setRotation(glm::vec3(0.5, gTimer->elapsedTime * 0.4, 1.0));
 	//box_01->setScale(glm::vec3(0.4 * cos(gTimer->elapsedTime) + 1.2));
-	box_01->setPosition(glm::vec3(1.0*cos(gTimer->elapsedTime), 0., 0.));
+	//box_01->setScale(glm::vec3(2.));
+	float hello = 1.0 * cos(gTimer->elapsedTime);
+	box_01->setPosition(glm::vec3(hello, 0., 0.));
 	//box_01->setPosition(glm::vec3(0.01, 0., 0.));
 #ifdef USE_GPU
 	cam.model = box_01->getModelMatrix();
 	cam.view = gCamera->GetViewMatrix();
 	cam.proj = gCamera->GetProjectionMatrix();
-	cam.camPos = gCamera->GetDirection();
-	cam.camDir = gCamera->GetPosition();
+	cam.camPos = gCamera->GetPosition();
+	cam.camDir = gCamera->GetDirection();
 	cam.elapsedTime = gTimer->elapsedTime;
 	((VulkanDescBufferUniform*)descriptorList[0])->update();
     // Vulkan rendering goes here
