@@ -2,9 +2,6 @@
 #include "Global.comp"
 #include "Graphics.comp"
 
-layout(constant_id = 0) const int SCREEN_WIDTH = 1;
-layout(constant_id = 1) const int SCREEN_HEIGT = 1;
-
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in float inHue;
 
@@ -14,7 +11,9 @@ layout(binding = 0) uniform UniformBufferObject {
     mat4 model;
     mat4 view;
     mat4 proj;
+    vec3 camPos;
     float elapsedTime;
+    vec3 camDir;
 } ubo;
 
 // Range: same as cos()

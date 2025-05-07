@@ -9,7 +9,8 @@ public:
     void SetPosition(const glm::vec3& pos);
     void SetTarget(const glm::vec3& tgt);
     void SetAspectRatio(float ratio);
-
+    glm::vec3 GetPosition() const;
+    glm::vec3 GetDirection() const;
     const glm::mat4& GetViewMatrix() const;
     const glm::mat4& GetProjectionMatrix() const;
 

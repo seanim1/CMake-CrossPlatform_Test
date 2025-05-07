@@ -31,6 +31,14 @@ void GameCamera::SetAspectRatio(float ratio) {
     aspect = ratio;
     UpdateProjectionMatrix();
 }
+glm::vec3 GameCamera::GetPosition() const {
+    return position;
+}
+
+glm::vec3 GameCamera::GetDirection() const
+{
+    return glm::normalize(target - position);
+}
 
 const glm::mat4& GameCamera::GetViewMatrix() const {
     return view;
