@@ -14,7 +14,7 @@ float map(vec3 p) {
 
     float torus = sdTorus(p, vec2(0.7, 0.15));
     float box   = sdBox(p, vec3(0.7));
-    return mix(torus, box, 0.0);
+    return mix(torus, box, t);
 }
 
 // Raymarching loop
