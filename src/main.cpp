@@ -64,9 +64,15 @@ struct CameraMatrices {
 	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 proj;
+
 	glm::vec3 camPos;
 	float elapsedTime;
+	
 	glm::vec3 camDir;
+	float padding_0;
+
+	glm::vec3 dirLightDir;
+	float padding_1;
 };
 static CameraMatrices cam;
 static Box* box_01;
@@ -172,7 +178,7 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
 SDL_AppResult SDL_AppIterate(void* appstate) {
     gTimer->StartTimer();
     gInput->Update(gCamera);
-	box_01->setRotation(glm::vec3(0., gTimer->elapsedTime * 0.2, 0.1));
+	box_01->setRotation(glm::vec3(0., gTimer->elapsedTime * 0.1, 0.1));
 	//box_01->setScale(glm::vec3(0.4 * cos(gTimer->elapsedTime) + 1.2));
 	box_01->setPosition(glm::vec3(0.3 * sin(gTimer->elapsedTime), 0.3 * sin(gTimer->elapsedTime), 0.));
 	//box_01->setPosition(glm::vec3(0.01, 0., 0.));
@@ -181,8 +187,9 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
 	cam.view = gCamera->GetViewMatrix();
 	cam.proj = gCamera->GetProjectionMatrix();
 	cam.camPos = gCamera->GetPosition();
-	cam.camDir = gCamera->GetDirection();
 	cam.elapsedTime = gTimer->elapsedTime;
+	cam.camDir = gCamera->GetDirection();
+	cam.dirLightDir = glm::normalize(glm::vec3(2.5, 25.0 * cos(gTimer->elapsedTime), 25.0 * sin(gTimer->elapsedTime)));
 	((VulkanDescBufferUniform*)descriptorList[0])->update();
     // Vulkan rendering goes here
 	queueX->drawFrame(deviceX->logicalDevice, syncX, swapChainX->swapChain, cmdX);

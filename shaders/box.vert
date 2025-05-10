@@ -7,15 +7,6 @@ layout(location = 1) in float inHue;
 
 layout(location = 0) out vec3 fragColor;
 
-layout(binding = 0) uniform UniformBufferObject {
-    mat4 model;
-    mat4 view;
-    mat4 proj;
-    vec3 camPos;
-    float elapsedTime;
-    vec3 camDir;
-} ubo;
-
 // Range: same as cos()
 float wavy(float x) {
     return sin(x) + 0.5 * sin(2.3 * x + 1.0) + 0.25 * sin(4.7 * x - 0.5);
