@@ -7,24 +7,14 @@ layout(location = 0) in vec3 fragColor;
 
 layout(location = 0) out vec4 outColor;
 
-layout(binding = 0) uniform UniformBufferObject {
-    mat4 model;
-    mat4 view;
-    mat4 proj;
-    vec3 camPos;
-    float elapsedTime;
-    vec3 camDir;
-} ubo;
-
 // Scene distance function
 float map(vec3 p) {
     // Blend shapes over time
     float t = 0.5 + 0.5 * sin(ubo.elapsedTime);
-    debugPrintfEXT("time: %f\n", t);
 
     float torus = sdTorus(p, vec2(0.7, 0.15));
     float box   = sdBox(p, vec3(0.7));
-    return mix(torus, box, t);
+    return mix(torus, box, 0.0);
 }
 
 // Raymarching loop
@@ -60,7 +50,7 @@ vec3 shade(vec3 ro, vec3 rd, float t)
 {
     vec3 p = ro + t * rd;
     vec3 n = getNormal(p);
-    vec3 lightDir = normalize(vec3(2.5, 2.5, -20.5));
+    vec3 lightDir = ubo.dirLightDir;
     float diff = max(dot(n, lightDir), 0.0);
 
     float ambient = 0.8;
