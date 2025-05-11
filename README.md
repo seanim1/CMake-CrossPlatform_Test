@@ -120,6 +120,7 @@
 - [Run the project on Android Device](https://developer.android.com/studio/run/device)
    - On the device, open the Settings app, select Developer options, and then enable USB debugging.
    - If you are on a new computer, you may need to turn it off and back on, because doing so prompts "allow debugging from this computer"
+   - Android Studio should have now detected your Android device.
 - In Android Studio (if you aren't in it already), connect with your Android device then press "Run".
 ### iOS (XCode)
 - try to build the project.
