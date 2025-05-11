@@ -1,5 +1,5 @@
 # SDL3 & Vulkan 1.1+ skeleton for Windows, Linux, MacOS, Android, iOS
-### Tested: Windows✅, Linux, MacOS, Android, iOS
+### Tested: Windows✅, Linux, MacOS✅, Android, iOS✅
 ![8_Raymarch](https://github.com/user-attachments/assets/d5c75541-e06d-4c77-83e9-ff06f52dd1c4)
 - Raymarching inside the fragment shader of a 3d box!
 - The Raymarched scene inherits the transformation of the box object!
@@ -49,7 +49,6 @@
 - I found the instructions a little bit confusing, look out for the following:
    - I am just gonna ignore this: Remove the main storyboard that was automatically added to the project
    - Where it says right click the project, we refer to the one with triangle icon.
-   - as for "hello.c," “copy files to destination”
    - as for "SDL.xcodeproj." "link by reference"
 ## Integrate our source, headers, and shaders
 ### Windows, Linux, MacOS
@@ -76,13 +75,13 @@
    - from "shaderBinary" folder, move all the .spv files to the "app/src/main/assets"
 ### iOS
 - Source file:
-   - Drag in the “src” folder from my repository into the new project (Action: Reference files in place). XCode should automatically be able to find the src files.
+   - Drag in the “src” folder from my repository into the new project (Action: “copy files to destination”). XCode should automatically be able to find the src files.
 - Include files:
-   - it is important that you do not drag in the include folder into the new project.
+   - it is important that you do not drag in the "include" folder into the new project.
    - select the project in the navigator, click on your target under the “Targets”, go to the “Build Settings” tab, search for “Search Paths” -> “Header Search Paths”, in the “Header Search Paths”, specify the path to the include folder, .h files should all be accessible in the XCode editor .cpp files.
 - Shader Binary files:
    - Go into "shaderBinary" folder.
-   - Select all the .spv files, and drag it into the XCode project. (it is important you do not drag the "shaderBinary" folder in, but each individual .spv files)
+   - Select all the .spv files, and drag it into the XCode project (using “copy files to destination”). (it is important you do not drag the "shaderBinary" folder in, but each individual .spv files)
 ## Integrate Vulkan SDK
 ### Windows, Linux, MacOS
 - For Windows, Linux, MacOS, just download the respective SDK. [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
