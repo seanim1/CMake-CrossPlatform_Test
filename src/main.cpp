@@ -133,7 +133,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	queueX->initQueue(deviceX->logicalDevice);
 	instanceX->initSurface(gWindow->window);
 	swapChainX = new VulkanSwapChain(physicalDeviceX->physicalDevice, instanceX->surface, deviceX->logicalDevice);
-	cmdX = new VulkanCommand(deviceX->logicalDevice, queueX->queueFamilyIndex, swapChainX->swapChainImages.size());
+	cmdX = new VulkanCommand(deviceX->logicalDevice, queueX->queueFamilyIndex, (uint32_t) swapChainX->swapChainImages.size());
 	syncX = new VulkanSynchronization(deviceX->logicalDevice);
 	box_01 = new Box(1.7f, 1.7f, 1.7f);
 	descriptorList.push_back( new VulkanDescBufferUniform(&cam, sizeof(cam), deviceX->logicalDevice, physicalDeviceX->physicalDevice));
