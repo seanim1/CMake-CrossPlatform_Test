@@ -1,5 +1,5 @@
 # SDL3 & Vulkan 1.1+ skeleton for Windows, Linux, MacOS, Android, iOS
-### Tested: Windows✅, Linux, MacOS✅, Android✅, iOS✅
+### Tested: Windows✅, Linux✅, MacOS✅, Android✅, iOS✅
 ![8_Raymarch](https://github.com/user-attachments/assets/d5c75541-e06d-4c77-83e9-ff06f52dd1c4)
 - Raymarching inside the fragment shader of a 3d box!
 - The Raymarched scene inherits the transformation of the box object!
@@ -58,7 +58,29 @@
 - In Android.mk,
    - change LOCAL_SRC_FILES with
    - ```make
-     LOCAL_SRC_FILES := $(wildcard src/*.cpp)
+     LOCAL_SRC_FILES := \
+       src/main.cpp \
+       src/GameCamera.cpp \
+       src/GameInput.cpp \
+       src/GameScreen.cpp \
+       src/GameTimer.cpp \
+       src/GameWindow.cpp \
+       src/GeometryBox.cpp \
+       src/Global.cpp \
+       src/VulkanCommand.cpp \
+       src/VulkanDesc.cpp \
+       src/VulkanDescBuffer.cpp \
+       src/VulkanDescBufferUniform.cpp \
+       src/VulkanDevice.cpp \
+       src/VulkanGraphicsPipeline.cpp \
+       src/VulkanInstance.cpp \
+       src/VulkanPhysicalDevice.cpp \
+       src/VulkanQueue.cpp \
+       src/VulkanResourceHelpers.cpp \
+       src/VulkanSpecializationConstant.cpp \
+       src/VulkanSwapChain.cpp \
+       src/VulkanSynchronization.cpp \
+       src/VulkanUberDescriptorSet.cpp
    - change LOCAL_C_INCLUDES with
    - ```make
      LOCAL_C_INCLUDES := \
