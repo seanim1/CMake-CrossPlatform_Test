@@ -13,7 +13,7 @@ VulkanCommand::VulkanCommand(VkDevice logicalDevice, uint32_t queueFamilyIndex, 
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     commandBufferAllocateInfo.commandPool = cmdPool;
     commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    commandBufferAllocateInfo.commandBufferCount = frameCmdBuffers.size();
+    commandBufferAllocateInfo.commandBufferCount = (uint32_t) frameCmdBuffers.size();
     // Command buffer for each frame
     CATCH_ERROR(vkAllocateCommandBuffers(logicalDevice, &commandBufferAllocateInfo, frameCmdBuffers.data()));
 

@@ -3,7 +3,7 @@
 #extension GL_EXT_shader_8bit_storage : enable
 #extension GL_EXT_shader_16bit_storage : enable
 #extension GL_EXT_shader_explicit_arithmetic_types_int8 : enable
-#extension GL_EXT_shader_explicit_arithmetic_types_int16 : enable
+// #extension GL_EXT_shader_explicit_arithmetic_types_int16 : enable // doesn't work on some Adreno GPUs
 #extension GL_EXT_shader_explicit_arithmetic_types_float16 : enable
 #extension GL_EXT_shader_atomic_float : enable
 
@@ -51,7 +51,7 @@
 #define PI 3.141592653589793
 layout(constant_id = 0) const int SCREEN_WIDTH = 1;
 layout(constant_id = 1) const int SCREEN_HEIGT = 1;
-const Ivec2X SCREEN_DIM = Ivec2X(SCREEN_WIDTH, SCREEN_HEIGT);
+const Ivec2T SCREEN_DIM = Ivec2T(SCREEN_WIDTH, SCREEN_HEIGT);
 
 
 layout(std430, binding = 0) uniform UniformBufferObject {

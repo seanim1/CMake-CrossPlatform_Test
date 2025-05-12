@@ -133,7 +133,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	queueX->initQueue(deviceX->logicalDevice);
 	instanceX->initSurface(gWindow->window);
 	swapChainX = new VulkanSwapChain(physicalDeviceX->physicalDevice, instanceX->surface, deviceX->logicalDevice);
-	cmdX = new VulkanCommand(deviceX->logicalDevice, queueX->queueFamilyIndex, swapChainX->swapChainImages.size());
+	cmdX = new VulkanCommand(deviceX->logicalDevice, queueX->queueFamilyIndex, (uint32_t) swapChainX->swapChainImages.size());
 	syncX = new VulkanSynchronization(deviceX->logicalDevice);
 	box_01 = new Box(1.7f, 1.7f, 1.7f);
 	descriptorList.push_back( new VulkanDescBufferUniform(&cam, sizeof(cam), deviceX->logicalDevice, physicalDeviceX->physicalDevice));
@@ -156,7 +156,13 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 	VulkanGraphicsPipeline* graphicsPipelineX = new VulkanGraphicsPipeline(physicalDeviceX->physicalDevice, deviceX->logicalDevice,
 		swapChainX, swapChainX->selectedSurfaceFormat, 
 		descriptorX->uberPipelineLayout, box_01, 
-		specialConstantX->specializationInfo);
+		specialConstantX->specializationInfo,
+		"box.vert.spv", "box.frag.spv");
+	VulkanGraphicsPipeline* graphicsPipelineX2 = new VulkanGraphicsPipeline(physicalDeviceX->physicalDevice, deviceX->logicalDevice,
+		swapChainX, swapChainX->selectedSurfaceFormat,
+		descriptorX->uberPipelineLayout, box_01,
+		specialConstantX->specializationInfo,
+		"box.vert.spv", "box.frag.spv");
 	cmdX->buildCommandBuffers(swapChainX, descriptorX->uberPipelineLayout,
 		descriptorX->uberDescSet, graphicsPipelineX, 
 		((VulkanDescBuffer*)descriptorList[1])->buffer, ((VulkanDescBuffer*)descriptorList[2])->buffer, box_01->getIndexCount());
